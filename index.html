@@ -497,6 +497,23 @@ function skipTimer(){clearInterval(tInt);const el=document.getElementById("rtime
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function bestSet(el){if(!el)return null;let b=0;Object.values(el).forEach(s=>{if(parseFloat(s.w)>b)b=parseFloat(s.w);});return b||null;}
+// Finds the most recent PREVIOUS week (chronologically, excluding the currently
+// viewed week) where this exact exercise has a logged weight — instead of
+// naively assuming "week - 1", which comes up empty after any skipped week,
+// a Gym/Home mode switch, or a calendar auto-advance that jumps past a week
+// with no logs. This mirrors how bestSet()/PR tracking already search across
+// all weeks rather than just the adjacent one.
+function lastLoggedExercise(day,ei){
+  const curW=wk(S.week);
+  const weeks=Object.keys(S.logs)
+    .filter(w=>w!==curW)
+    .sort((a,b)=>+b.slice(1)-+a.slice(1)); // most recent first
+  for(const w of weeks){
+    const el=S.logs[w]?.[day]?.[ei];
+    if(el&&Object.values(el).some(s=>s.w))return el;
+  }
+  return {};
+}
 function totalVol(el){if(!el)return 0;let v=0;Object.values(el).forEach(s=>{v+=(parseFloat(s.w)||0)*(parseFloat(s.r)||0);});return Math.round(v);}
 function exTrend(d,ei){
   return Object.keys(S.logs).sort((a,b)=>+a.slice(1)-+b.slice(1))
@@ -990,6 +1007,7 @@ function render(){
       const isNewPR=curBest&&isPR(activeDay,ei,curBest);
       const note=S.exnotes[W]?.[activeDay]?.[ei]||"";
       const isSkipped=S.exskip?.[W]?.[activeDay]?.[ei];
+      const prevEl=lastLoggedExercise(activeDay,ei);
       html+=`<div class="card${isNewPR?" prcard":""}" style="${isSkipped?"opacity:0.55":""}"><div class="ch">
         <div style="flex:1;margin-right:8px">
           <div class="exn">${ex.name}${isNewPR?`<span class="pr-badge">🏆 PR</span>`:""}${isSkipped?`<span style="display:inline-block;background:#f8717122;border:1px solid #f87171;color:#f87171;font-size:8px;font-weight:800;letter-spacing:1px;padding:2px 6px;border-radius:4px;margin-left:6px">SKIPPED</span>`:""}</div>
@@ -1000,7 +1018,7 @@ function render(){
       if(!isSkipped){
         html+=`<div class="sg" style="margin-bottom:6px"><div></div><div class="cl">Weight</div><div class="cl">Reps</div><div class="cl">Prev</div></div>`;
         for(let si=0;si<ex.sets;si++){
-          const e=dayLog[ei]?.[si]||{},p=prevLog[ei]?.[si]||{};
+          const e=dayLog[ei]?.[si]||{},p=prevEl?.[si]||{};
           const isUp=e.w&&p.w&&parseFloat(e.w)>parseFloat(p.w);
           html+=`<div class="sg">
             <div class="sn${e.w?" filled":""}">${si+1}</div>
