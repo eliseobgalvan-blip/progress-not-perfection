@@ -366,7 +366,7 @@ function getDayWorkout(dayKey){
 const KEY="eli-training-v4";
 const AI_URL="https://sinpausa-ai.eliseobgalvan.workers.dev"; // Cloudflare Worker proxy (holds API key server-side)
 const OLD_KEYS=["eli-training-v3","eli-training-v2","eli-training-v1","eli-prostandard-v1","eli-workout-v3","eli-workout-v2","eli-workout-v1"];
-function def(){return{week:currentWeek(),logs:{},meals:{},bodyweight:{},checkins:{},water:{},missed:{},supps:{},steps:{},exnotes:{},wtimes:{},mode:"gym",dayAssign:{},macros:{},profile:null,exskip:{}};}
+function def(){return{week:currentWeek(),logs:{},meals:{},bodyweight:{},checkins:{},water:{},missed:{},supps:{},steps:{},exnotes:{},wtimes:{},mode:"gym",dayAssign:{},macros:{},profile:null,exskip:{},coachChat:{}};}
 function loadS(){
   try{
     // Try current key first
@@ -798,7 +798,7 @@ function applyMealPlan(){
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let activeTab="log",activeDay="Mon",aView="overview",selEx=null,recDay="Mon",prOpen=null;
-let coachChat=[],coachLoading=false;
+let coachChat=loadCoachChat(),coachLoading=false;
 function re(){document.getElementById("app").innerHTML="";render();if(typeof wtIsRunning==="function"&&wtIsRunning())wtTick();}
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -1628,6 +1628,17 @@ function setRecovery(day,field,val){
 function togglePR(id){prOpen=prOpen===id?null:id;re();}
 
 // ── AI Coach Chat ─────────────────────────────────────────────────────────────
+// Coach conversation history is persisted into S (localStorage), keyed by
+// today's calendar date, so it survives app reloads / backgrounding and only
+// resets on a new day — instead of living in a plain JS variable that wiped
+// itself every time the page reloaded.
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function loadCoachChat(){ return (S.coachChat && S.coachChat[todayKey()]) || []; }
+function saveCoachChat(){
+  if(!S.coachChat)S.coachChat={};
+  S.coachChat[todayKey()]=coachChat;
+  saveS(S);
+}
 function buildCoachContext(){
   const w=wk(S.week);
   const now=new Date();
@@ -1673,6 +1684,7 @@ async function sendCoachMsg(){
   const msg=input?input.value.trim():"";
   if(!msg||coachLoading)return;
   coachChat.push({role:"user",content:msg});
+  saveCoachChat();
   coachLoading=true;
   if(input)input.value="";
   re();
@@ -1693,6 +1705,7 @@ async function sendCoachMsg(){
   }catch{
     coachChat.push({role:"assistant",content:"Connection issue — try again in a moment."});
   }
+  saveCoachChat();
   coachLoading=false;
   re();
   scrollCoach();
@@ -1705,7 +1718,9 @@ function scrollCoach(){
 }
 function clearCoachChat(){
   if(coachChat.length&&!confirm("Clear this conversation?"))return;
-  coachChat=[];re();
+  coachChat=[];
+  saveCoachChat();
+  re();
 }
 function coachQuick(msg){
   const input=document.getElementById("coachInput");
