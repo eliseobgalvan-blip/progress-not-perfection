@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Sin Pausa">
+<meta name="apple-mobile-web-app-title" content="Progress">
 <meta name="theme-color" content="#0a0a0a">
-<title>Sin Pausa Training</title>
-<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Sin%20Pausa%22,%22short_name%22:%22Sin%20Pausa%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230a0a0a%22,%22theme_color%22:%22%230a0a0a%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%230a0a0a'/%3E%3Ctext%20x='256'%20y='340'%20font-size='280'%20text-anchor='middle'%20fill='%23C9A92C'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230a0a0a'/><text x='256' y='340' font-size='280' text-anchor='middle' fill='%23C9A92C'>💪</text></svg>">
+<title>Progress Not Perfection</title>
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Progress%20Not%20Perfection%22,%22short_name%22:%22Progress%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230a0a0a%22,%22theme_color%22:%22%230a0a0a%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%230a0a0a'/%3E%3Crect%20x='70'%20y='156'%20width='28'%20height='200'%20rx='10'%20fill='%23F0EDE5'/%3E%3Crect%20x='110'%20y='186'%20width='20'%20height='140'%20rx='8'%20fill='%23F0EDE5'/%3E%3Crect%20x='130'%20y='244'%20width='252'%20height='24'%20rx='12'%20fill='%23F0EDE5'/%3E%3Crect%20x='382'%20y='186'%20width='20'%20height='140'%20rx='8'%20fill='%23F0EDE5'/%3E%3Crect%20x='414'%20y='156'%20width='28'%20height='200'%20rx='10'%20fill='%23F0EDE5'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230a0a0a'/><rect x='70' y='156' width='28' height='200' rx='10' fill='%23F0EDE5'/><rect x='110' y='186' width='20' height='140' rx='8' fill='%23F0EDE5'/><rect x='130' y='244' width='252' height='24' rx='12' fill='%23F0EDE5'/><rect x='382' y='186' width='20' height='140' rx='8' fill='%23F0EDE5'/><rect x='414' y='156' width='28' height='200' rx='10' fill='%23F0EDE5'/></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#0a0a0a;color:#f0f0f0;font-family:-apple-system,'Helvetica Neue',sans-serif;overscroll-behavior:none}
@@ -26,35 +26,35 @@ textarea,input[type=text]{font-family:-apple-system,'Helvetica Neue',sans-serif}
 .appsub{font-size:11px;color:#444;margin-top:1px}
 .wkbox{display:flex;align-items:center;gap:10px;background:#131313;border-radius:10px;padding:8px 14px;border:1px solid #1e1e1e}
 .wkbtn{background:none;border:none;color:#444;font-size:22px;padding:0;line-height:1;width:24px}
-.wknum{font-size:22px;font-weight:800;color:#C9A92C;line-height:1}
+.wknum{font-size:22px;font-weight:800;color:#F0EDE5;line-height:1}
 .wktxt{font-size:9px;color:#555;letter-spacing:2px;text-transform:uppercase}
 .tabs{display:flex;gap:4px}
 .tab{flex:1;padding:8px 0;border-radius:8px;border:none;font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;background:#131313;color:#555}
-.tab.active{background:#C9A92C;color:#000}
+.tab.active{background:#F0EDE5;color:#000}
 .dtabs{display:flex;gap:6px;padding:12px 16px 0;overflow-x:auto}
 .dtab{flex:0 0 auto;padding:8px 12px;border-radius:10px;border:2px solid #1e1e1e;background:#111;min-width:58px;text-align:center}
-.dtab.active{border-color:#C9A92C;background:#1e1e1e}
+.dtab.active{border-color:#F0EDE5;background:#1e1e1e}
 .dtab.weekend{border-style:dashed}
 .dtab.weekend.active{border-style:solid}
 .dtab .dd{font-size:12px;font-weight:800;color:#555}
-.dtab.active .dd{color:#C9A92C}
+.dtab.active .dd{color:#F0EDE5}
 .dtab .df{font-size:8px;color:#444;margin-top:2px;text-transform:uppercase}
 .dtab.active .df{color:#aaa}
 .dtab .dp{font-size:9px;margin-top:2px;color:#333}
-.dtab.active .dp{color:#C9A92C}
+.dtab.active .dp{color:#F0EDE5}
 .card{background:#131313;border:1px solid #1e1e1e;border-radius:12px;margin-bottom:10px;overflow:hidden}
-.card.gb{border-color:#C9A92C55}
-.card.prcard{border-color:#C9A92C;background:#C9A92C0a}
+.card.gb{border-color:#F0EDE555}
+.card.prcard{border-color:#F0EDE5;background:#F0EDE50a}
 .ch{padding:10px 14px 8px;border-bottom:1px solid #1e1e1e;display:flex;justify-content:space-between;align-items:flex-start}
 .cb{padding:10px 14px 12px}
 .exn{font-size:12px;font-weight:700;color:#fff;line-height:1.35}
 .exm{font-size:10px;color:#555;margin-top:2px}
-.vbadge{font-size:10px;color:#C9A92C;font-weight:700;text-align:right;white-space:nowrap;line-height:1.4}
-.pr-badge{display:inline-block;background:#C9A92C;color:#000;font-size:8px;font-weight:800;letter-spacing:1px;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.vbadge{font-size:10px;color:#F0EDE5;font-weight:700;text-align:right;white-space:nowrap;line-height:1.4}
+.pr-badge{display:inline-block;background:#F0EDE5;color:#000;font-size:8px;font-weight:800;letter-spacing:1px;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
 .sg{display:grid;grid-template-columns:24px 1fr 1fr 50px;gap:6px;align-items:center;margin-bottom:6px}
 .cl{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1px}
 .sn{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;border:1px solid #252525;background:#1a1a1a;color:#444}
-.sn.filled{background:#C9A92C22;border-color:#C9A92C;color:#C9A92C}
+.sn.filled{background:#F0EDE522;border-color:#F0EDE5;color:#F0EDE5}
 .si{background:#1a1a1a;border:1px solid #252525;border-radius:7px;padding:8px 10px;color:#fff;font-size:14px;font-weight:600;width:100%;outline:none;-webkit-appearance:none}
 .pv{font-size:10px;color:#444;text-align:center}
 .pv.up{color:#4ade80;font-weight:700}
@@ -64,42 +64,42 @@ textarea,input[type=text]{font-family:-apple-system,'Helvetica Neue',sans-serif}
 .tring{position:relative;width:76px;height:76px}
 .tring svg{transform:rotate(-90deg)}
 .tring circle{fill:none;stroke:#1e1e1e;stroke-width:5}
-.tring .prog{stroke:#C9A92C;stroke-width:5;stroke-linecap:round;stroke-dasharray:207;stroke-dashoffset:0;transition:stroke-dashoffset .1s linear}
+.tring .prog{stroke:#F0EDE5;stroke-width:5;stroke-linecap:round;stroke-dasharray:207;stroke-dashoffset:0;transition:stroke-dashoffset .1s linear}
 .tring.done .prog{stroke:#4ade80}
 .tnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;font-weight:800;color:#fff}
 .tlbl{font-size:9px;color:#888;letter-spacing:2px;text-transform:uppercase}
 .tskip{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#666}
 /* Workout Timer */
 .wtimer-bar{background:#131313;border:1px solid #1e1e1e;border-radius:10px;padding:10px 14px;margin:10px 16px;display:flex;align-items:center;gap:10px}
-.wtimer-display{font-size:22px;font-weight:800;color:#C9A92C;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.wtimer-display{font-size:22px;font-weight:800;color:#F0EDE5;font-variant-numeric:tabular-nums;letter-spacing:-1px}
 .wtimer-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px}
 .wtimer-btn{padding:6px 14px;border-radius:8px;border:none;font-size:11px;font-weight:800;cursor:pointer}
-.wtimer-btn.start{background:#C9A92C;color:#000}
+.wtimer-btn.start{background:#F0EDE5;color:#000}
 .wtimer-btn.stop{background:#f87171;color:#000}
 /* Meals */
 .mc{border-radius:12px;padding:12px 14px;margin-bottom:10px;border:1px solid #1e1e1e;background:#131313;display:flex;align-items:flex-start;gap:10px}
-.mc.ck{background:#C9A92C18;border-color:#C9A92C}
+.mc.ck{background:#F0EDE518;border-color:#F0EDE5}
 .mch{width:24px;height:24px;border-radius:6px;border:2px solid #444;background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#000;flex-shrink:0;margin-top:1px}
-.mch.ck{background:#C9A92C;border-color:#C9A92C}
+.mch.ck{background:#F0EDE5;border-color:#F0EDE5}
 .mn{font-size:12px;font-weight:700;color:#ccc}
-.mn.ck{color:#C9A92C}
+.mn.ck{color:#F0EDE5}
 .mi{font-size:10px;color:#555;margin-top:3px;line-height:1.5}
 /* Supplements */
 .suprow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1e1e1e}
 .suprow:last-child{border-bottom:none}
 .supcheck{width:22px;height:22px;border-radius:6px;border:2px solid #444;background:transparent;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000;flex-shrink:0;cursor:pointer}
-.supcheck.ck{background:#C9A92C;border-color:#C9A92C}
+.supcheck.ck{background:#F0EDE5;border-color:#F0EDE5}
 .supname{font-size:12px;color:#ccc;flex:1}
 .suptime{font-size:10px;color:#555}
 .sl{font-size:10px;font-weight:700;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
 .sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
 .scard{background:#131313;border:1px solid #1e1e1e;border-radius:10px;padding:12px 8px;text-align:center}
-.sv{font-size:20px;font-weight:800;color:#C9A92C}
+.sv{font-size:20px;font-weight:800;color:#F0EDE5}
 .slbl{font-size:9px;color:#888;margin-top:3px;text-transform:uppercase;letter-spacing:1px;white-space:pre-line}
 .bcwrap{overflow-x:auto;padding-bottom:4px}
 .bc{display:flex;align-items:flex-end;gap:6px;height:90px;padding:0 4px}
 .bcol{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:26px}
-.bar{background:#C9A92C;border-radius:3px 3px 0 0;width:100%;min-height:4px}
+.bar{background:#F0EDE5;border-radius:3px 3px 0 0;width:100%;min-height:4px}
 .blbl{font-size:9px;color:#555}
 .gr{margin-bottom:12px}
 .gt{display:flex;justify-content:space-between;margin-bottom:4px}
@@ -114,29 +114,29 @@ textarea,input[type=text]{font-family:-apple-system,'Helvetica Neue',sans-serif}
 .cbg{flex:1;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden}
 .cfill{height:100%;border-radius:3px}
 .ccnt{font-size:11px;color:#888;width:36px;text-align:right}
-.aic{background:#131313;border:1px solid #C9A92C55;border-radius:12px;padding:14px;margin-bottom:14px}
+.aic{background:#131313;border:1px solid #F0EDE555;border-radius:12px;padding:14px;margin-bottom:14px}
 .aih{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.ail{font-size:11px;font-weight:700;color:#C9A92C;letter-spacing:2px;text-transform:uppercase}
-.aib{background:#C9A92C;border:none;border-radius:6px;padding:6px 14px;font-size:10px;font-weight:800;color:#000;letter-spacing:1px}
+.ail{font-size:11px;font-weight:700;color:#F0EDE5;letter-spacing:2px;text-transform:uppercase}
+.aib{background:#F0EDE5;border:none;border-radius:6px;padding:6px 14px;font-size:10px;font-weight:800;color:#000;letter-spacing:1px}
 .ait{font-size:12px;color:#444;line-height:1.7}
 .ait.ld{color:#ccc}
 textarea,input[type=text]{width:100%;background:#1a1a1a;border:1px solid #252525;border-radius:8px;padding:8px 10px;color:#ccc;font-size:12px;outline:none;box-sizing:border-box}
 textarea{resize:none}
 .cinrow{display:flex;gap:6px}
 .cinbtn{flex:1;padding:10px 0;border-radius:8px;border:1px solid #252525;background:#1a1a1a;color:#555;font-size:11px;font-weight:700;text-align:center}
-.cinbtn.sel{border-color:#C9A92C;background:#C9A92C22;color:#C9A92C}
+.cinbtn.sel{border-color:#F0EDE5;background:#F0EDE522;color:#F0EDE5}
 .missedday{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e1e1e;font-size:11px;color:#888}
 .missedday:last-child{border-bottom:none}
 .prrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1e1e1e}
 .prrow:last-child{border-bottom:none}
 .prname{font-size:11px;color:#ccc;flex:1;margin-right:8px}
-.prval{font-size:13px;font-weight:800;color:#C9A92C;white-space:nowrap}
+.prval{font-size:13px;font-weight:800;color:#F0EDE5;white-space:nowrap}
 .prdate{font-size:9px;color:#555;margin-top:2px}
 .watercups{display:flex;gap:4px;flex-wrap:wrap}
 .wcup{width:30px;height:30px;border-radius:7px;border:1px solid #252525;background:#1a1a1a;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .wcup.filled{background:#1e3a5f;border-color:#3b82f6}
-.btng{width:100%;padding:14px;border-radius:10px;border:none;background:#C9A92C;color:#000;font-size:13px;font-weight:800;letter-spacing:1px;margin-bottom:12px}
-.btno{width:100%;padding:14px;border-radius:10px;border:1px solid #C9A92C;background:transparent;color:#C9A92C;font-size:13px;font-weight:800;letter-spacing:1px}
+.btng{width:100%;padding:14px;border-radius:10px;border:none;background:#F0EDE5;color:#000;font-size:13px;font-weight:800;letter-spacing:1px;margin-bottom:12px}
+.btno{width:100%;padding:14px;border-radius:10px;border:1px solid #F0EDE5;background:transparent;color:#F0EDE5;font-size:13px;font-weight:800;letter-spacing:1px}
 .btng:disabled{opacity:.5}
 .rpt-prev{background:#131313;border:1px solid #1e1e1e;border-radius:12px;padding:14px;margin-bottom:12px}
 .rpt-txt{font-size:12px;color:#ccc;line-height:1.8;white-space:pre-wrap}
@@ -151,17 +151,17 @@ svg.lc{width:100%;overflow:visible}
 .edg{font-size:14px;font-weight:800;white-space:nowrap;margin-left:8px}
 .edd{padding:0 14px 14px;border-top:1px solid #1e1e1e}
 .dfl{font-size:16px;font-weight:800;color:#fff}
-.dfs{font-size:12px;color:#C9A92C;font-weight:600;margin-top:1px}
+.dfs{font-size:12px;color:#F0EDE5;font-weight:600;margin-top:1px}
 .plan-ta{width:100%;background:#1a1a1a;border:1px solid #252525;border-radius:8px;padding:10px 12px;color:#ccc;font-size:12px;resize:none;outline:none;box-sizing:border-box;line-height:1.6;min-height:140px}
 .ps{font-size:11px;padding:10px 12px;border-radius:8px;margin-top:8px;line-height:1.5}
 .ps.ok{background:#0f2e1a;border:1px solid #16a34a;color:#4ade80}
 .ps.err{background:#2e0f0f;border:1px solid #dc2626;color:#f87171}
-.ps.loading{background:#1e1a0f;border:1px solid #C9A92C55;color:#C9A92C}
+.ps.loading{background:#1e1a0f;border:1px solid #F0EDE555;color:#F0EDE5}
 .pp{background:#1a1a1a;border-radius:8px;padding:10px 12px;margin-top:8px}
-.ppd{font-size:10px;font-weight:700;color:#C9A92C;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;margin-top:10px}
+.ppd{font-size:10px;font-weight:700;color:#F0EDE5;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;margin-top:10px}
 .ppd:first-child{margin-top:0}
 .ppe{font-size:11px;color:#888;padding:2px 0}
-.ss-title{font-size:11px;font-weight:700;color:#C9A92C;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1e1e1e}
+.ss-title{font-size:11px;font-weight:700;color:#F0EDE5;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1e1e1e}
 .ss{margin-bottom:20px}
 /* Exercise notes */
 .ex-note{background:#1a1a1a;border:1px solid #1e1e1e;border-radius:6px;padding:6px 10px;color:#888;font-size:11px;resize:none;outline:none;width:100%;box-sizing:border-box;margin-top:6px}
@@ -171,7 +171,7 @@ svg.lc{width:100%;overflow:visible}
 .step-day{width:32px;font-size:11px;font-weight:700;color:#888}
 .step-bar-bg{flex:1;height:8px;background:#1e1e1e;border-radius:4px;overflow:hidden}
 .step-bar-fill{height:100%;border-radius:4px;background:#4ade80}
-.step-bar-fill.warn{background:#C9A92C}
+.step-bar-fill.warn{background:#F0EDE5}
 .step-bar-fill.low{background:#f87171}
 .step-val{font-size:11px;font-weight:700;width:52px;text-align:right}
 /* Whatsapp share */
@@ -308,7 +308,7 @@ const SUPPS=[
 ];
 const DAYS=["Mon","Tue","Wed","Thu","Fri"];
 const ALLDAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-const G="#C9A92C";
+const G="#F0EDE5";
 const WATER_GOAL=16;
 const STEP_GOAL=7000;
 
@@ -587,7 +587,7 @@ async function doInsight(){
   const latestBW=bwE.length?bwE[bwE.length-1][1]:null;
   if(!vols.length){insightTxt="Log workouts first and I'll analyze your progress.";re();return;}
   insightTxt="...";re();
-  insightTxt=await callAI(`Physique coach for ${P().name} (${pHeight()}, starting ${P().startWeight}lbs${latestBW?`, current ${latestBW}lbs`:""}, ${P().schedule} training, Week ${S.week}, Sin Pausa). Weeks logged:${vols.length}. Volumes:${JSON.stringify(vols)}. Top gains:${JSON.stringify(gains.slice(0,5))}. Write 3-4 sentences direct coaching with specific numbers. Flag plateaus. One tip for next week. No bullets.`);
+  insightTxt=await callAI(`Physique coach for ${P().name} (${pHeight()}, starting ${P().startWeight}lbs${latestBW?`, current ${latestBW}lbs`:""}, ${P().schedule} training, Week ${S.week}, Progress Not Perfection). Weeks logged:${vols.length}. Volumes:${JSON.stringify(vols)}. Top gains:${JSON.stringify(gains.slice(0,5))}. Write 3-4 sentences direct coaching with specific numbers. Flag plateaus. One tip for next week. No bullets.`);
   re();
 }
 async function doReport(){
@@ -614,7 +614,7 @@ async function doReport(){
   const stepStr=DAYS.map(d=>`${d}:${S.steps[w]?.[d]||0}`).join(" ");
   const bw=S.bodyweight[w]||null;
   reportTxt="Generating...";re();
-  reportTxt=await callAI(`Write a weekly training report for ${P().name} to send their coach at Sin Pausa. ${P().name}: ${pHeight()}, Week ${S.week}${bw?`, bodyweight: ${bw}lbs`:""}.
+  reportTxt=await callAI(`Write a weekly training report for ${P().name} to send their coach at Progress Not Perfection. ${P().name}: ${pHeight()}, Week ${S.week}${bw?`, bodyweight: ${bw}lbs`:""}.
 
 WORKOUT DATA:\n${workout}
 STRENGTH GAINS (all time):\n${gains.slice(0,8).map(g=>`${g.name}: ${g.first}→${g.last}lbs (${g.pct>0?"+":""}${g.pct}%)`).join("\n")}
@@ -629,12 +629,12 @@ Sections: 1.WEEK ${S.week} SUMMARY 2.TRAINING HIGHLIGHTS (PRs, duration) 3.AREAS
 }
 function exportPDF(){
   const gains=allGains(),w=wk(S.week),bw=S.bodyweight[w]||null;
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:780px;margin:0 auto;color:#111}.hdr{border-bottom:3px solid #C9A92C;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end}.brand{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-bottom:4px}.name{font-size:26px;font-weight:800}.sub{font-size:12px;color:#666;margin-top:2px}.badge{background:#C9A92C;color:#000;font-weight:800;padding:8px 16px;border-radius:8px;text-align:center}.bl{font-size:9px;letter-spacing:2px;display:block}.bn{font-size:22px;line-height:1.1}.sec{margin-bottom:22px}.st{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#C9A92C;font-weight:700;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #f0f0f0}.rpt{font-size:12px;line-height:1.8;color:#333;white-space:pre-wrap}.gg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gi{background:#f9f9f9;border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center}.gn{font-size:10px;color:#555}.gv{font-size:12px;font-weight:800;color:#16a34a;text-align:right}.gv.dn{color:#dc2626}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#f5f5f5;padding:5px 8px;text-align:left;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#888}td{padding:5px 8px;border-bottom:1px solid #f0f0f0;color:#333}.dh{background:#111;color:#C9A92C;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:5px 8px}.ft{margin-top:30px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:9px;color:#bbb}@media print{body{padding:20px}}</style></head><body>
-<div class="hdr"><div><div class="brand">Sin Pausa · Structured Physique Building</div><div class="name">${P().name}</div><div class="sub">Weekly Training Report · ${pHeight()}${bw?` · ${bw} lbs`:""}</div></div><div class="badge"><span class="bl">WEEK</span><span class="bn">${S.week}</span></div></div>
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:780px;margin:0 auto;color:#111}.hdr{border-bottom:3px solid #F0EDE5;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end}.brand{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-bottom:4px}.name{font-size:26px;font-weight:800}.sub{font-size:12px;color:#666;margin-top:2px}.badge{background:#F0EDE5;color:#000;font-weight:800;padding:8px 16px;border-radius:8px;text-align:center}.bl{font-size:9px;letter-spacing:2px;display:block}.bn{font-size:22px;line-height:1.1}.sec{margin-bottom:22px}.st{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#F0EDE5;font-weight:700;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #f0f0f0}.rpt{font-size:12px;line-height:1.8;color:#333;white-space:pre-wrap}.gg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gi{background:#f9f9f9;border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center}.gn{font-size:10px;color:#555}.gv{font-size:12px;font-weight:800;color:#16a34a;text-align:right}.gv.dn{color:#dc2626}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#f5f5f5;padding:5px 8px;text-align:left;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#888}td{padding:5px 8px;border-bottom:1px solid #f0f0f0;color:#333}.dh{background:#111;color:#F0EDE5;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:5px 8px}.ft{margin-top:30px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:9px;color:#bbb}@media print{body{padding:20px}}</style></head><body>
+<div class="hdr"><div><div class="brand">Progress Not Perfection · Structured Physique Building</div><div class="name">${P().name}</div><div class="sub">Weekly Training Report · ${pHeight()}${bw?` · ${bw} lbs`:""}</div></div><div class="badge"><span class="bl">WEEK</span><span class="bn">${S.week}</span></div></div>
 <div class="sec"><div class="st">Coach Report</div><div class="rpt">${reportTxt.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div></div>
 <div class="sec"><div class="st">Strength Gains (All Time)</div><div class="gg">${gains.slice(0,8).map(g=>`<div class="gi"><div class="gn">${g.name}</div><div class="gv ${g.pct<0?"dn":""}">${g.pct>0?"+":""}${g.pct}%<br><span style="font-size:9px;font-weight:400;color:#888">${g.first}→${g.last}lbs</span></div></div>`).join("")}${!gains.length?'<div style="color:#999;font-size:11px;grid-column:span 2">No multi-week data yet</div>':""}</div></div>
-<div class="sec"><div class="st">Workouts — Week ${S.week}</div><table>${DAYS.map(d=>{const dl=S.logs[w]?.[d];const wt=S.wtimes[w]?.[d];if(!dl)return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}</td></tr><tr><td colspan="3" style="color:#bbb;font-style:italic;padding:6px 8px">Not logged</td></tr>`;const rows=getPROG()[d].exercises.map((ex,ei)=>{const el=dl[ei];if(!el)return"";const note=S.exnotes[w]?.[d]?.[ei];return`<tr><td>${ex.name}${note?` <span style="color:#888;font-size:9px">[${note}]</span>`:""}</td><td>${Object.values(el).map((s,i)=>`S${i+1}:${s.w||"?"}×${s.r||"?"}`).join(" · ")}</td><td style="color:#C9A92C;font-weight:700">${totalVol(el).toLocaleString()}lbs</td></tr>`;}).join("");return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}${wt?.elapsed?` · ${fmtTime(wt.elapsed)}`:""}</td></tr><tr><th>Exercise</th><th>Sets</th><th>Volume</th></tr>${rows}`;}).join("")}</table></div>
-<div class="ft"><span>${P().name} · Sin Pausa</span><span>Week ${S.week} Report · ${new Date().toLocaleDateString()}</span></div></body></html>`;
+<div class="sec"><div class="st">Workouts — Week ${S.week}</div><table>${DAYS.map(d=>{const dl=S.logs[w]?.[d];const wt=S.wtimes[w]?.[d];if(!dl)return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}</td></tr><tr><td colspan="3" style="color:#bbb;font-style:italic;padding:6px 8px">Not logged</td></tr>`;const rows=getPROG()[d].exercises.map((ex,ei)=>{const el=dl[ei];if(!el)return"";const note=S.exnotes[w]?.[d]?.[ei];return`<tr><td>${ex.name}${note?` <span style="color:#888;font-size:9px">[${note}]</span>`:""}</td><td>${Object.values(el).map((s,i)=>`S${i+1}:${s.w||"?"}×${s.r||"?"}`).join(" · ")}</td><td style="color:#F0EDE5;font-weight:700">${totalVol(el).toLocaleString()}lbs</td></tr>`;}).join("");return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}${wt?.elapsed?` · ${fmtTime(wt.elapsed)}`:""}</td></tr><tr><th>Exercise</th><th>Sets</th><th>Volume</th></tr>${rows}`;}).join("")}</table></div>
+<div class="ft"><span>${P().name} · Progress Not Perfection</span><span>Week ${S.week} Report · ${new Date().toLocaleDateString()}</span></div></body></html>`;
   const blob=new Blob([html],{type:"text/html"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");a.href=url;a.download=`EliGalvan_Week${S.week}_Report.html`;a.click();
@@ -826,10 +826,9 @@ function render(){
   if(!S.profile){
     app.innerHTML=`<div style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px;max-width:480px;margin:0 auto">
       <div style="text-align:center;margin-bottom:28px">
-        <div style="font-size:32px;font-weight:900;color:#C9A92C;letter-spacing:-1px">SIN PAUSA</div>
+        <div style="font-size:22px;font-weight:900;color:#F0EDE5;letter-spacing:-0.5px">PROGRESS NOT PERFECTION</div>
         <div style="font-size:11px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;margin-top:4px">Training App</div>
-        <div style="font-size:11px;color:#C9A92C;font-style:italic;margin-top:10px">"Descansa si quieres, pero no te detengas."</div>
-        <div style="font-size:10px;color:#555;margin-top:2px">"Rest if you want, but don't stop."</div>
+        <div style="font-size:11px;color:#F0EDE5;font-style:italic;margin-top:10px">"Progress, not perfection. Every rep counts."</div>
       </div>
       <div style="background:#131313;border:1px solid #1e1e1e;border-radius:16px;padding:20px">
         <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">Set Up Your Profile</div>
@@ -864,7 +863,7 @@ function render(){
           </div>
         </div>
 
-        <button onclick="saveProfile()" style="width:100%;padding:15px;border-radius:10px;border:none;background:#C9A92C;color:#000;font-size:14px;font-weight:800;letter-spacing:1px">START TRAINING 💪</button>
+        <button onclick="saveProfile()" style="width:100%;padding:15px;border-radius:10px;border:none;background:#F0EDE5;color:#000;font-size:14px;font-weight:800;letter-spacing:1px">START TRAINING 💪</button>
       </div>
       <div style="text-align:center;font-size:9px;color:#333;margin-top:16px">Your data stays on your device. Change your plan anytime in Settings.</div>
     </div>`;
@@ -882,15 +881,14 @@ function render(){
     <div class="hdr-top">
       <div style="flex:1;text-align:center">
         <div style="font-size:9px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:2px">${P().name}</div>
-        <div style="font-size:26px;font-weight:900;color:#C9A92C;letter-spacing:-0.5px;line-height:1.1">SIN PAUSA</div>
+        <div style="font-size:18px;font-weight:900;color:#F0EDE5;letter-spacing:-0.3px;line-height:1.1">PROGRESS NOT PERFECTION</div>
         <div style="font-size:11px;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-top:2px">Training App</div>
         <div style="display:flex;gap:6px;justify-content:center;margin-top:6px">
-          <button onclick="setMode('gym')" style="padding:4px 12px;border-radius:20px;border:1px solid ${S.mode==='gym'?'#C9A92C':'#252525'};background:${S.mode==='gym'?'#C9A92C22':'#1a1a1a'};color:${S.mode==='gym'?'#C9A92C':'#555'};font-size:10px;font-weight:800;letter-spacing:1px">🏋️ GYM</button>
-          <button onclick="setMode('home')" style="padding:4px 12px;border-radius:20px;border:1px solid ${S.mode==='home'?'#C9A92C':'#252525'};background:${S.mode==='home'?'#C9A92C22':'#1a1a1a'};color:${S.mode==='home'?'#C9A92C':'#555'};font-size:10px;font-weight:800;letter-spacing:1px">🏠 HOME</button>
+          <button onclick="setMode('gym')" style="padding:4px 12px;border-radius:20px;border:1px solid ${S.mode==='gym'?'#F0EDE5':'#252525'};background:${S.mode==='gym'?'#F0EDE522':'#1a1a1a'};color:${S.mode==='gym'?'#F0EDE5':'#555'};font-size:10px;font-weight:800;letter-spacing:1px">🏋️ GYM</button>
+          <button onclick="setMode('home')" style="padding:4px 12px;border-radius:20px;border:1px solid ${S.mode==='home'?'#F0EDE5':'#252525'};background:${S.mode==='home'?'#F0EDE522':'#1a1a1a'};color:${S.mode==='home'?'#F0EDE5':'#555'};font-size:10px;font-weight:800;letter-spacing:1px">🏠 HOME</button>
         </div>
         ${S.mode==='home'?`<div style="font-size:9px;color:#f87171;margin-top:4px">Control + Execution days — Not light days</div>`:''}
-        <div style="font-size:10px;color:#C9A92C;font-style:italic;margin-top:4px">"Descansa si quieres, pero no te detengas."</div>
-        <div style="font-size:9px;color:#555;margin-top:2px">"Rest if you want, but don't stop."</div>
+        <div style="font-size:10px;color:#F0EDE5;font-style:italic;margin-top:4px">"Progress, not perfection. Every rep counts."</div>
       </div>
       <div class="wkbox">
         <button class="wkbtn" onclick="chWeek(-1)">‹</button>
@@ -940,7 +938,7 @@ function render(){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           ${DAYS.map(d=>{
             const prog=getPROG()[d];
-            return`<button onclick="assignDay('${activeDay}','${d}')" style="padding:10px 8px;border-radius:8px;border:1px solid ${assigned===d?"#C9A92C":"#252525"};background:${assigned===d?"#C9A92C22":"#1a1a1a"};color:${assigned===d?"#C9A92C":"#888"};font-size:11px;font-weight:700;text-align:left">
+            return`<button onclick="assignDay('${activeDay}','${d}')" style="padding:10px 8px;border-radius:8px;border:1px solid ${assigned===d?"#F0EDE5":"#252525"};background:${assigned===d?"#F0EDE522":"#1a1a1a"};color:${assigned===d?"#F0EDE5":"#888"};font-size:11px;font-weight:700;text-align:left">
               <div>${d} · ${prog.focus.split(" / ")[0]}</div>
               <div style="font-size:9px;color:#555;margin-top:2px">${prog.exercises.length} exercises</div>
             </button>`;
@@ -1031,7 +1029,7 @@ function render(){
       } else {
         html+=`<div style="font-size:11px;color:#888;padding:4px 0 8px">Marked as not completed today.${note?` Note: ${note}`:""}</div>`;
       }
-      html+=`<button onclick="toggleSkip('${activeDay}',${ei})" style="width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid ${isSkipped?"#C9A92C":"#252525"};background:${isSkipped?"#C9A92C22":"#1a1a1a"};color:${isSkipped?"#C9A92C":"#666"};font-size:11px;font-weight:700">${isSkipped?"↩ Undo — I did this exercise":"✕ Didn't get to this one"}</button>`;
+      html+=`<button onclick="toggleSkip('${activeDay}',${ei})" style="width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid ${isSkipped?"#F0EDE5":"#252525"};background:${isSkipped?"#F0EDE522":"#1a1a1a"};color:${isSkipped?"#F0EDE5":"#666"};font-size:11px;font-weight:700">${isSkipped?"↩ Undo — I did this exercise":"✕ Didn't get to this one"}</button>`;
       html+=`</div></div>`;
     });
 
@@ -1100,8 +1098,8 @@ function render(){
     // ── MACRO CALCULATOR ──
     const macros=S.macros||{};
     const targets=macros.targets;
-    html+=`<div class="card" style="padding:14px;margin-bottom:10px;border-color:#C9A92C55">
-      <div class="sl" style="margin-bottom:4px;color:#C9A92C">🧮 Macro Calculator</div>
+    html+=`<div class="card" style="padding:14px;margin-bottom:10px;border-color:#F0EDE555">
+      <div class="sl" style="margin-bottom:4px;color:#F0EDE5">🧮 Macro Calculator</div>
       <div style="font-size:11px;color:#888;margin-bottom:12px">AI-powered targets for your current goal</div>
 
       <!-- Goal selector -->
@@ -1109,8 +1107,8 @@ function render(){
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
         ${[["recomp","Recomp","Build + lean"],["fatloss","Fat Loss","Cut"],["bulk","Lean Bulk","Build"]].map(([val,label,sub])=>{
           const sel=(macros.goal||"recomp")===val;
-          return`<button onclick="setMacroGoal('${val}')" style="padding:10px 4px;border-radius:8px;border:1px solid ${sel?"#C9A92C":"#252525"};background:${sel?"#C9A92C22":"#1a1a1a"};color:${sel?"#C9A92C":"#888"};font-size:11px;font-weight:800;text-align:center">
-            <div>${label}</div><div style="font-size:8px;color:${sel?"#C9A92C99":"#555"};margin-top:2px;font-weight:400">${sub}</div>
+          return`<button onclick="setMacroGoal('${val}')" style="padding:10px 4px;border-radius:8px;border:1px solid ${sel?"#F0EDE5":"#252525"};background:${sel?"#F0EDE522":"#1a1a1a"};color:${sel?"#F0EDE5":"#888"};font-size:11px;font-weight:800;text-align:center">
+            <div>${label}</div><div style="font-size:8px;color:${sel?"#F0EDE599":"#555"};margin-top:2px;font-weight:400">${sub}</div>
           </button>`;
         }).join("")}
       </div>
@@ -1118,7 +1116,7 @@ function render(){
       ${targets?`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:12px">
           <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:10px 4px">
-            <div style="font-size:16px;font-weight:800;color:#C9A92C">${targets.calories}</div>
+            <div style="font-size:16px;font-weight:800;color:#F0EDE5">${targets.calories}</div>
             <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">kcal</div>
           </div>
           <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:10px 4px">
@@ -1147,14 +1145,14 @@ function render(){
         <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🔍 Food Macro Lookup</div>
         <div style="display:flex;gap:6px;margin-bottom:8px">
           <input type="text" id="foodLookup" placeholder="e.g. 6oz grilled chicken breast" value="${macros.lookupText||""}" onchange="S.macros=S.macros||{};S.macros.lookupText=this.value;saveS(S)" style="flex:1;font-size:12px;padding:9px 10px">
-          <button onclick="lookupFood(document.getElementById('foodLookup').value)" style="padding:9px 14px;border-radius:8px;border:none;background:#C9A92C;color:#000;font-size:11px;font-weight:800;white-space:nowrap">Look Up</button>
+          <button onclick="lookupFood(document.getElementById('foodLookup').value)" style="padding:9px 14px;border-radius:8px;border:none;background:#F0EDE5;color:#000;font-size:11px;font-weight:800;white-space:nowrap">Look Up</button>
         </div>
         ${macros.lookupStatus==="loading"?`<div class="ps loading">⏳ Looking up macros...</div>`:""}
         ${macros.lookupResult?`
           <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-top:8px">
             <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">${macros.lookupResult.food}</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
-              <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#C9A92C">${macros.lookupResult.calories}</div><div style="font-size:8px;color:#555;text-transform:uppercase">kcal</div></div>
+              <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#F0EDE5">${macros.lookupResult.calories}</div><div style="font-size:8px;color:#555;text-transform:uppercase">kcal</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#4ade80">${macros.lookupResult.protein}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Protein</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#60a5fa">${macros.lookupResult.carbs}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Carbs</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#fbbf24">${macros.lookupResult.fat}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Fat</div></div>
@@ -1167,12 +1165,12 @@ function render(){
       <div style="border-top:1px solid #1e1e1e;padding-top:12px;margin-top:12px">
         <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📊 Analyze My Meal Plan</div>
         <div style="font-size:11px;color:#888;margin-bottom:8px">AI totals up the macros in your current 6-meal plan and compares to your targets.</div>
-        <button onclick="analyzeMealPlan()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #C9A92C;background:transparent;color:#C9A92C;font-size:11px;font-weight:700">Analyze Current Meal Plan</button>
+        <button onclick="analyzeMealPlan()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #F0EDE5;background:transparent;color:#F0EDE5;font-size:11px;font-weight:700">Analyze Current Meal Plan</button>
         ${macros.planStatus==="loading"?`<div class="ps loading" style="margin-top:8px">⏳ Adding up your meal plan...</div>`:""}
         ${macros.planResult?`
           <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-top:8px">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px">
-              <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#C9A92C">${macros.planResult.calories}</div><div style="font-size:8px;color:#555;text-transform:uppercase">kcal</div></div>
+              <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#F0EDE5">${macros.planResult.calories}</div><div style="font-size:8px;color:#555;text-transform:uppercase">kcal</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#4ade80">${macros.planResult.protein}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Protein</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#60a5fa">${macros.planResult.carbs}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Carbs</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#fbbf24">${macros.planResult.fat}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Fat</div></div>
@@ -1192,10 +1190,10 @@ function render(){
         <div style="display:flex;gap:6px;margin-bottom:8px">
           ${["Dinner","Lunch","Big meal — going all in"].map(occ=>{
             const sel=(macros.diningOccasion||"Dinner")===occ;
-            return`<button onclick="S.macros=S.macros||{};S.macros.diningOccasion='${occ}';saveS(S);re()" style="flex:1;padding:8px 4px;border-radius:8px;border:1px solid ${sel?"#C9A92C":"#252525"};background:${sel?"#C9A92C22":"#1a1a1a"};color:${sel?"#C9A92C":"#888"};font-size:10px;font-weight:700">${occ}</button>`;
+            return`<button onclick="S.macros=S.macros||{};S.macros.diningOccasion='${occ}';saveS(S);re()" style="flex:1;padding:8px 4px;border-radius:8px;border:1px solid ${sel?"#F0EDE5":"#252525"};background:${sel?"#F0EDE522":"#1a1a1a"};color:${sel?"#F0EDE5":"#888"};font-size:10px;font-weight:700">${occ}</button>`;
           }).join("")}
         </div>
-        <button onclick="diningCoach(document.getElementById('diningInput').value)" style="width:100%;padding:11px;border-radius:8px;border:none;background:#C9A92C;color:#000;font-size:12px;font-weight:800">🍽️ What Should I Order?</button>
+        <button onclick="diningCoach(document.getElementById('diningInput').value)" style="width:100%;padding:11px;border-radius:8px;border:none;background:#F0EDE5;color:#000;font-size:12px;font-weight:800">🍽️ What Should I Order?</button>
         ${macros.diningStatus==="loading"?`<div class="ps loading" style="margin-top:8px">⏳ Checking the menu against your macros...</div>`:""}
         ${macros.diningResult?`
           <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-top:8px">
@@ -1228,7 +1226,7 @@ function render(){
         ${bwEntries.length>=2?`
           <div style="margin-bottom:10px">${lineChart(bwEntries.map(([w,v])=>({week:+w.slice(1),weight:v})))}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#C9A92C">${bwEntries[0][1]}</div><div style="font-size:9px;color:#555;text-transform:uppercase">Start</div></div>
+            <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#F0EDE5">${bwEntries[0][1]}</div><div style="font-size:9px;color:#555;text-transform:uppercase">Start</div></div>
             <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:#fff">${latestBW}</div><div style="font-size:9px;color:#555;text-transform:uppercase">Current</div></div>
             <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:8px"><div style="font-size:16px;font-weight:800;color:${latestBW-bwEntries[0][1]<=0?"#4ade80":"#f87171"}">${latestBW-bwEntries[0][1]>0?"+":""}${(latestBW-bwEntries[0][1]).toFixed(1)}</div><div style="font-size:9px;color:#555;text-transform:uppercase">Change</div></div>
           </div>`:`<div class="empty" style="padding:8px 0">Log weight each week to track trend</div>`}
@@ -1284,8 +1282,8 @@ function render(){
           ${ALLDAYS.map(d=>{
             const has=ci[d]?.sleep;
             const sel=recDay===d;
-            return`<button onclick="setRecDay('${d}')" style="flex:0 0 auto;padding:8px 12px;border-radius:8px;border:1px solid ${sel?"#C9A92C":"#252525"};background:${sel?"#1e1e1e":"#111"};min-width:48px;text-align:center">
-              <div style="font-size:12px;font-weight:800;color:${sel?"#C9A92C":"#555"}">${d}</div>
+            return`<button onclick="setRecDay('${d}')" style="flex:0 0 auto;padding:8px 12px;border-radius:8px;border:1px solid ${sel?"#F0EDE5":"#252525"};background:${sel?"#1e1e1e":"#111"};min-width:48px;text-align:center">
+              <div style="font-size:12px;font-weight:800;color:${sel?"#F0EDE5":"#555"}">${d}</div>
               <div style="font-size:9px;margin-top:2px;color:${has?"#4ade80":"#333"}">${has?ci[d].sleep+"h":"–"}</div>
             </button>`;
           }).join("")}
@@ -1294,11 +1292,11 @@ function render(){
         <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-bottom:12px">
           <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:10px">${recDay} Recovery</div>
           <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Sleep (hours)</div>
-          <div style="display:flex;gap:5px;margin-bottom:12px">${[4,5,6,7,8,9].map(n=>`<button onclick="setRecovery('${recDay}','sleep',${n})" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid ${ci[recDay]?.sleep===n?"#C9A92C":"#252525"};background:${ci[recDay]?.sleep===n?"#C9A92C22":"#111"};color:${ci[recDay]?.sleep===n?"#C9A92C":"#555"};font-size:12px;font-weight:700">${n}</button>`).join("")}</div>
+          <div style="display:flex;gap:5px;margin-bottom:12px">${[4,5,6,7,8,9].map(n=>`<button onclick="setRecovery('${recDay}','sleep',${n})" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid ${ci[recDay]?.sleep===n?"#F0EDE5":"#252525"};background:${ci[recDay]?.sleep===n?"#F0EDE522":"#111"};color:${ci[recDay]?.sleep===n?"#F0EDE5":"#555"};font-size:12px;font-weight:700">${n}</button>`).join("")}</div>
           <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Energy 1–5</div>
-          <div style="display:flex;gap:5px;margin-bottom:12px">${[1,2,3,4,5].map(n=>`<button onclick="setRecovery('${recDay}','energy',${n})" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid ${ci[recDay]?.energy===n?"#C9A92C":"#252525"};background:${ci[recDay]?.energy===n?"#C9A92C22":"#111"};color:${ci[recDay]?.energy===n?"#C9A92C":"#555"};font-size:12px;font-weight:700">${n}</button>`).join("")}</div>
+          <div style="display:flex;gap:5px;margin-bottom:12px">${[1,2,3,4,5].map(n=>`<button onclick="setRecovery('${recDay}','energy',${n})" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid ${ci[recDay]?.energy===n?"#F0EDE5":"#252525"};background:${ci[recDay]?.energy===n?"#F0EDE522":"#111"};color:${ci[recDay]?.energy===n?"#F0EDE5":"#555"};font-size:12px;font-weight:700">${n}</button>`).join("")}</div>
           <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Soreness 1–5</div>
-          <div style="display:flex;gap:5px">${[1,2,3,4,5].map(n=>`<button onclick="setRecovery('${recDay}','soreness',${n})" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid ${ci[recDay]?.soreness===n?"#C9A92C":"#252525"};background:${ci[recDay]?.soreness===n?"#C9A92C22":"#111"};color:${ci[recDay]?.soreness===n?"#C9A92C":"#555"};font-size:12px;font-weight:700">${n}</button>`).join("")}</div>
+          <div style="display:flex;gap:5px">${[1,2,3,4,5].map(n=>`<button onclick="setRecovery('${recDay}','soreness',${n})" style="flex:1;padding:9px 0;border-radius:8px;border:1px solid ${ci[recDay]?.soreness===n?"#F0EDE5":"#252525"};background:${ci[recDay]?.soreness===n?"#F0EDE522":"#111"};color:${ci[recDay]?.soreness===n?"#F0EDE5":"#555"};font-size:12px;font-weight:700">${n}</button>`).join("")}</div>
         </div>
 
         <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Sleep This Week (goal: 7+ hrs)</div>
@@ -1320,7 +1318,7 @@ function render(){
       <div class="card" style="padding:14px;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div class="sl" style="margin-bottom:0">🏆 Personal Records</div>
-          ${countTotalPRs()>0?`<div style="background:#C9A92C22;border:1px solid #C9A92C55;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800;color:#C9A92C">${countTotalPRs()} PRs set 🔥</div>`:""}
+          ${countTotalPRs()>0?`<div style="background:#F0EDE522;border:1px solid #F0EDE555;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800;color:#F0EDE5">${countTotalPRs()} PRs set 🔥</div>`:""}
         </div>
         <div style="font-size:11px;color:#888;margin-bottom:12px">Tap any lift to see its full progression over time</div>
         ${!prs.length?`<div class="empty">Start logging to build your PR board</div>`:
@@ -1345,8 +1343,8 @@ function render(){
               ${isOpen?`<div style="padding:4px 0 12px">
                 ${history.map((m,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:5px 0">
                   <div style="width:44px;font-size:10px;color:#555">Week ${m.week}</div>
-                  <div style="flex:1;height:4px;background:#1e1e1e;border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round(m.weight/pr.weight*100)}%;background:${i===history.length-1?"#C9A92C":"#4ade80"};border-radius:2px"></div></div>
-                  <div style="font-size:11px;font-weight:700;color:${i===history.length-1?"#C9A92C":"#ccc"};width:60px;text-align:right">${m.weight} lbs</div>
+                  <div style="flex:1;height:4px;background:#1e1e1e;border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round(m.weight/pr.weight*100)}%;background:${i===history.length-1?"#F0EDE5":"#4ade80"};border-radius:2px"></div></div>
+                  <div style="font-size:11px;font-weight:700;color:${i===history.length-1?"#F0EDE5":"#ccc"};width:60px;text-align:right">${m.weight} lbs</div>
                   <div style="font-size:10px;color:#4ade80;width:42px;text-align:right">${m.gain>0?"+"+m.gain:i===0?"🥇":""}</div>
                 </div>`).join("")}
               </div>`:""}
@@ -1393,7 +1391,7 @@ function render(){
           </div>
         `:coachChat.map(m=>`
           <div style="display:flex;justify-content:${m.role==="user"?"flex-end":"flex-start"};margin-bottom:10px">
-            <div style="max-width:85%;padding:10px 14px;border-radius:${m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px"};background:${m.role==="user"?"#C9A92C":"#1a1a1a"};color:${m.role==="user"?"#000":"#ccc"};font-size:12px;line-height:1.6;white-space:pre-wrap;font-weight:${m.role==="user"?"600":"400"}">${m.content}</div>
+            <div style="max-width:85%;padding:10px 14px;border-radius:${m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px"};background:${m.role==="user"?"#F0EDE5":"#1a1a1a"};color:${m.role==="user"?"#000":"#ccc"};font-size:12px;line-height:1.6;white-space:pre-wrap;font-weight:${m.role==="user"?"600":"400"}">${m.content}</div>
           </div>
         `).join("")}
         ${coachLoading?`<div style="display:flex;justify-content:flex-start;margin-bottom:10px"><div style="padding:10px 16px;border-radius:14px 14px 14px 4px;background:#1a1a1a;color:#666;font-size:12px">Coach is thinking...</div></div>`:""}
@@ -1402,7 +1400,7 @@ function render(){
       <div style="padding:10px 16px;border-top:1px solid #1e1e1e;background:#111;display:flex;gap:8px">
         <input type="text" id="coachInput" placeholder="Message your coach..." onkeydown="if(event.key==='Enter')sendCoachMsg()"
           style="flex:1;background:#1a1a1a;border:1px solid #252525;border-radius:22px;padding:11px 16px;color:#fff;font-size:13px;outline:none">
-        <button onclick="sendCoachMsg()" ${coachLoading?"disabled":""} style="width:44px;height:44px;border-radius:50%;border:none;background:#C9A92C;color:#000;font-size:16px;font-weight:800;flex-shrink:0;opacity:${coachLoading?"0.5":"1"}">↑</button>
+        <button onclick="sendCoachMsg()" ${coachLoading?"disabled":""} style="width:44px;height:44px;border-radius:50%;border:none;background:#F0EDE5;color:#000;font-size:16px;font-weight:800;flex-shrink:0;opacity:${coachLoading?"0.5":"1"}">↑</button>
       </div>
     </div>`;
   }
@@ -1509,9 +1507,9 @@ function render(){
 
       <div class="ss"><div class="ss-title">📋 Workout Plan</div>
       <div class="card" style="padding:14px">
-        <div style="background:#1a1a1a;border:1px solid ${S.mode==="gym"?"#C9A92C":"#60a5fa"};border-radius:8px;padding:10px 12px;margin-bottom:10px">
+        <div style="background:#1a1a1a;border:1px solid ${S.mode==="gym"?"#F0EDE5":"#60a5fa"};border-radius:8px;padding:10px 12px;margin-bottom:10px">
           <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Uploading for</div>
-          <div style="font-size:13px;font-weight:800;color:${S.mode==="gym"?"#C9A92C":"#60a5fa"}">${S.mode==="gym"?"🏋️ Gym Edition":"🏠 Home Edition"}</div>
+          <div style="font-size:13px;font-weight:800;color:${S.mode==="gym"?"#F0EDE5":"#60a5fa"}">${S.mode==="gym"?"🏋️ Gym Edition":"🏠 Home Edition"}</div>
           <div style="font-size:10px;color:#777;margin-top:5px;line-height:1.5">This replaces your <strong>${S.mode==="gym"?"Gym":"Home"}</strong> program only. Switch modes in the header to upload your ${S.mode==="gym"?"Home":"Gym"} plan separately.</div>
         </div>
         <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.5">Upload a PDF from your trainer or paste the plan as text.</div>
@@ -1560,8 +1558,8 @@ function render(){
       <div class="ss"><div class="ss-title">💾 Backup & Restore</div>
       <div class="card" style="padding:14px">
         <div style="font-size:11px;color:#888;margin-bottom:12px;line-height:1.5">Export all your data — workouts, PRs, meals, body weight, recovery, everything — as a backup file. Restore it on a new phone or after clearing your browser.</div>
-        <button onclick="exportData()" style="width:100%;padding:12px;border-radius:8px;border:none;background:#C9A92C;color:#000;font-size:12px;font-weight:800;margin-bottom:8px">⬇️ Export My Data (Backup)</button>
-        <label style="display:block;width:100%;padding:12px;border-radius:8px;border:1px solid #C9A92C;background:transparent;color:#C9A92C;font-size:12px;font-weight:800;text-align:center;cursor:pointer;box-sizing:border-box">
+        <button onclick="exportData()" style="width:100%;padding:12px;border-radius:8px;border:none;background:#F0EDE5;color:#000;font-size:12px;font-weight:800;margin-bottom:8px">⬇️ Export My Data (Backup)</button>
+        <label style="display:block;width:100%;padding:12px;border-radius:8px;border:1px solid #F0EDE5;background:transparent;color:#F0EDE5;font-size:12px;font-weight:800;text-align:center;cursor:pointer;box-sizing:border-box">
           ⬆️ Restore From Backup
           <input type="file" accept=".json,application/json" style="display:none" onchange="importData(this)">
         </label>
@@ -1681,7 +1679,7 @@ function buildCoachContext(){
 
   return `CONTEXT ABOUT ${P().name.toUpperCase()}:
 - ${P().name}, ${pHeight()}${latestBW?", "+latestBW+" lbs":", started at "+P().startWeight+" lbs"}, trains ${P().schedule} Mon-Fri
-- Program: Sin Pausa (${S.mode==="gym"?"Gym":"Home"} Edition), Week ${S.week}, progressive overload
+- Program: Progress Not Perfection (${S.mode==="gym"?"Gym":"Home"} Edition), Week ${S.week}, progressive overload
 - Goal: ${goal==="recomp"?"body recomposition":goal==="fatloss"?"fat loss":"lean bulk"}
 ${targets?`- Daily targets: ${targets.calories} kcal, ${targets.protein}g protein, ${targets.carbs}g carbs, ${targets.fat}g fat`:""}
 - Today is ${now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}, current device time: ${now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}
@@ -1694,7 +1692,7 @@ ${ci.energy?`- Today's check-in: energy ${ci.energy}/5, soreness ${ci.soreness||
 - Weeks logged: ${vols.length}. Top strength gains: ${gains.slice(0,3).map(g=>`${g.name} +${g.pct}%`).join(", ")||"none yet"}
 - His meal plan: ${MEALS.map((m,i)=>`Meal ${i+1}: ${m.items.join(", ")}`).join(" | ")}
 
-You are ${P().name}'s personal coach in the Sin Pausa app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime.`;
+You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime.`;
 }
 
 async function sendCoachMsg(){
@@ -1748,7 +1746,7 @@ function coachQuick(msg){
 // ── Backup & Restore ──────────────────────────────────────────────────────────
 function exportData(){
   const backup={
-    app:"Sin Pausa Training",
+    app:"Progress Not Perfection",
     version:1,
     exportedAt:new Date().toISOString(),
     data:S
@@ -1757,7 +1755,7 @@ function exportData(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
   const dateStr=new Date().toISOString().slice(0,10);
-  a.href=url;a.download=`SinPausa_Backup_${dateStr}.json`;a.click();
+  a.href=url;a.download=`ProgressNotPerfection_Backup_${dateStr}.json`;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function importData(input){
@@ -1775,7 +1773,7 @@ function importData(input){
       alert("✅ Backup restored! All your data is back.");
       re();
     }catch{
-      alert("❌ Couldn't read that file. Make sure it's a Sin Pausa backup (.json).");
+      alert("❌ Couldn't read that file. Make sure it's a Progress Not Perfection backup (.json).");
     }
   };
   reader.readAsText(file);
