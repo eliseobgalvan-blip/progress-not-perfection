@@ -366,7 +366,7 @@ function getDayWorkout(dayKey){
 const KEY="eli-training-v4";
 const AI_URL="https://sinpausa-ai.eliseobgalvan.workers.dev"; // Cloudflare Worker proxy (holds API key server-side)
 const OLD_KEYS=["eli-training-v3","eli-training-v2","eli-training-v1","eli-prostandard-v1","eli-workout-v3","eli-workout-v2","eli-workout-v1"];
-function def(){return{week:currentWeek(),logs:{},meals:{},bodyweight:{},checkins:{},water:{},missed:{},supps:{},steps:{},exnotes:{},wtimes:{},mode:"gym",dayAssign:{},macros:{},profile:null,exskip:{},coachChat:{}};}
+function def(){return{week:currentWeek(),logs:{},meals:{},bodyweight:{},checkins:{},water:{},missed:{},supps:{},steps:{},exnotes:{},wtimes:{},mode:"gym",dayAssign:{},macros:{},profile:null,exskip:{},coachChat:{},nutrientTargets:{},mealNutrients:null,lastBackup:null};}
 function loadS(){
   try{
     // Try current key first
@@ -613,6 +613,10 @@ async function doReport(){
   const ciStr=DAYS.map(d=>`${d}:E${ci[d]?.energy||"–"}/5,S${ci[d]?.soreness||"–"}/5,${ci[d]?.sleep||"–"}hrs`).join(" ");
   const stepStr=DAYS.map(d=>`${d}:${S.steps[w]?.[d]||0}`).join(" ");
   const bw=S.bodyweight[w]||null;
+  const nTargets=S.nutrientTargets||{};
+  const nutrientStr=S.mealNutrients&&(nTargets.sodium||nTargets.potassium)?
+    DAYS.map(d=>{const t=todaysNutrientTotals(d);if(!t)return`${d}:–`;return`${d}:Na${Math.round(t.sodium)}mg/K${Math.round(t.potassium)}mg`;}).join(" | ")
+    :null;
   reportTxt="Generating...";re();
   reportTxt=await callAI(`Write a weekly training report for ${P().name} to send their coach at Progress Not Perfection. ${P().name}: ${pHeight()}, Week ${S.week}${bw?`, bodyweight: ${bw}lbs`:""}.
 
@@ -622,9 +626,10 @@ MEAL COMPLIANCE:\n${mealStr}
 SUPPLEMENT COMPLIANCE:\n${suppStr}
 RECOVERY:\n${ciStr}
 DAILY STEPS:\n${stepStr}
+${nutrientStr?`SODIUM/POTASSIUM (daily totals, targets: sodium ${nTargets.sodium||"none set"}mg, potassium ${nTargets.potassium||"none set"}mg):\n${nutrientStr}`:""}
 Notes:${md.notes||"None"}
 
-Sections: 1.WEEK ${S.week} SUMMARY 2.TRAINING HIGHLIGHTS (PRs, duration) 3.AREAS TO IMPROVE 4.NUTRITION & SUPPLEMENT COMPLIANCE 5.RECOVERY & STEPS 6.GOALS FOR WEEK ${S.week+1}. Concise, factual, coach-ready.`);
+Sections: 1.WEEK ${S.week} SUMMARY 2.TRAINING HIGHLIGHTS (PRs, duration) 3.AREAS TO IMPROVE 4.NUTRITION & SUPPLEMENT COMPLIANCE${nutrientStr?" (including sodium/potassium vs targets)":""} 5.RECOVERY & STEPS 6.GOALS FOR WEEK ${S.week+1}. Concise, factual, coach-ready.`);
   re();
 }
 function exportPDF(){
@@ -735,6 +740,48 @@ ${targets?`\nTARGETS: ${targets.calories}kcal, ${targets.protein}g protein, ${ta
   saveS(S);re();
 }
 
+// ── Per-Meal Nutrient Breakdown (for Today's Nutrient Total) ───────────────────
+// Estimates calories/protein/carbs/fat/sodium/potassium for EACH meal in the
+// plan, once, via AI — cached in S.mealNutrients so the daily total can be
+// computed instantly from whichever meals are actually checked off, without
+// re-calling the AI every time a checkbox is tapped.
+async function calcMealNutrients(){
+  S.macros=S.macros||{};S.macros.nutStatus="loading";saveS(S);re();
+  const mealText=MEALS.map((m,i)=>`Meal ${i}: ${m.name} — ${m.items.join(", ")}`).join("\n");
+  const result=await callAI(`Estimate nutrition for EACH meal below individually. Return ONLY valid JSON array, no markdown, one object per meal in the same order:
+[{"calories":450,"protein":40,"carbs":35,"fat":12,"sodium":380,"potassium":620}]
+
+sodium and potassium are both in milligrams (mg). Base estimates on typical values for the foods and quantities listed.
+
+MEALS:\n${mealText}`);
+  try{
+    const parsed=JSON.parse(result.replace(/```json|```/g,"").trim());
+    if(!Array.isArray(parsed)||parsed.length!==MEALS.length)throw new Error();
+    S.mealNutrients=parsed;S.macros.nutStatus="";
+  }catch{S.macros.nutStatus="";alert("Couldn't calculate nutrient breakdown — try again.");}
+  saveS(S);re();
+}
+function setNutrientTarget(field,val){
+  S.nutrientTargets=S.nutrientTargets||{};
+  S.nutrientTargets[field]=val?parseFloat(val):null;
+  saveS(S);re();
+}
+// Sums calories/protein/carbs/fat/sodium/potassium across only the meals
+// actually checked off today, using the cached per-meal breakdown.
+function todaysNutrientTotals(day){
+  if(!S.mealNutrients)return null;
+  const checked=(S.meals[wk(S.week)]||{})[day]||{};
+  const totals={calories:0,protein:0,carbs:0,fat:0,sodium:0,potassium:0};
+  MEALS.forEach((_,i)=>{
+    if(!checked[i])return;
+    const n=S.mealNutrients[i];
+    if(!n)return;
+    totals.calories+=n.calories||0;totals.protein+=n.protein||0;totals.carbs+=n.carbs||0;
+    totals.fat+=n.fat||0;totals.sodium+=n.sodium||0;totals.potassium+=n.potassium||0;
+  });
+  return totals;
+}
+
 // ── Charts ────────────────────────────────────────────────────────────────────
 function barChart(data,vk){
   if(!data.length)return`<div class="empty">Log 2+ weeks to see trend</div>`;
@@ -802,7 +849,9 @@ function applyWorkoutPlan(){
 }
 function applyMealPlan(){
   if(!parsedMeals)return;
-  S.customMeals=parsedMeals;saveS(S);
+  S.customMeals=parsedMeals;
+  S.mealNutrients=null; // stale — plan changed, old per-meal breakdown no longer matches
+  saveS(S);
   MEALS.length=0;parsedMeals.forEach(m=>MEALS.push(m));
   parsedMeals=null;parseStatus="";mealPasteText="";
   alert("✅ Meal plan updated!");re();
@@ -928,6 +977,18 @@ function render(){
       </button>`;
     });
     html+=`</div>`;
+
+    // Backup reminder — only shown once genuinely overdue, and only on the most-visited tab
+    {
+      const d=daysSinceBackup();
+      const hasData=Object.keys(S.logs||{}).length>0;
+      if(hasData&&(d===null||d>=14)){
+        html+=`<div class="pad" style="margin-top:12px"><div style="background:#2e1a1a;border:1px solid #f8717155;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div style="font-size:11px;color:#f87171;line-height:1.4">${d===null?"You've never backed up your data.":`It's been ${d} days since your last backup.`} One tap protects your history.</div>
+          <button onclick="setTab('settings')" style="flex-shrink:0;padding:8px 12px;border-radius:8px;border:none;background:#f87171;color:#000;font-size:10px;font-weight:800;white-space:nowrap">Back Up</button>
+        </div></div>`;
+      }
+    }
 
     // Weekend assignment picker
     if((activeDay==="Sat"||activeDay==="Sun")){
@@ -1094,6 +1155,87 @@ function render(){
       <div class="watercups">${Array.from({length:WATER_GOAL}).map((_,i)=>`<button class="wcup${i<water?" filled":""}" onclick="setWater('${activeDay}',${i<water?i:i+1})">${i<water?"💧":"○"}</button>`).join("")}</div>
       <div style="font-size:10px;color:#555;margin-top:8px">Goal: 1 gallon · Tap to fill</div>
     </div>`;
+
+    // ── TODAY'S NUTRIENT TOTAL ──
+    {
+      const nTargets=S.nutrientTargets||{};
+      const nutStatus=(S.macros||{}).nutStatus;
+      const todayTotals=todaysNutrientTotals(activeDay);
+      html+=`<div class="card" style="padding:14px;margin-bottom:10px;border-color:#F0EDE555">
+        <div class="sl" style="margin-bottom:4px;color:#F0EDE5">🧾 Today's Nutrient Total</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px">Sums up whatever you've checked off today — handy for tracking sodium/potassium against a doctor's target.</div>
+        ${!S.mealNutrients?`
+          <button class="btng" onclick="calcMealNutrients()" ${nutStatus==="loading"?"disabled":""}>⚡ Calculate Nutrient Breakdown for My Meals</button>
+          ${nutStatus==="loading"?`<div class="ps loading">⏳ Estimating nutrients per meal...</div>`:""}
+        `:`
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+            <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:10px 4px">
+              <div style="font-size:16px;font-weight:800;color:#F0EDE5">${Math.round(todayTotals.calories)}</div>
+              <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">kcal</div>
+            </div>
+            <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:10px 4px">
+              <div style="font-size:16px;font-weight:800;color:#4ade80">${Math.round(todayTotals.protein)}g</div>
+              <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Protein</div>
+            </div>
+            <div style="text-align:center;background:#1a1a1a;border-radius:8px;padding:10px 4px">
+              <div style="font-size:16px;font-weight:800;color:#60a5fa">${Math.round(todayTotals.carbs)}g</div>
+              <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Carbs</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            ${[["sodium","Sodium","mg"],["potassium","Potassium","mg"]].map(([key,label,unit])=>{
+              const val=Math.round(todayTotals[key]);
+              const target=nTargets[key];
+              const pct=target?Math.round(val/target*100):null;
+              const color=!target?"#F0EDE5":pct>=100?"#f87171":pct>=80?"#fbbf24":"#4ade80";
+              return`<div style="background:#1a1a1a;border-radius:8px;padding:10px 12px">
+                <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${label}</div>
+                <div style="font-size:18px;font-weight:800;color:${color}">${val}<span style="font-size:11px;font-weight:400;color:#555">${unit}</span></div>
+                ${target?`<div style="font-size:10px;color:#666;margin-top:2px">of ${target}${unit} target${pct>=100?" — over":""}</div>`:`<div style="font-size:10px;color:#444;margin-top:2px">no target set</div>`}
+              </div>`;
+            }).join("")}
+          </div>
+          <button onclick="calcMealNutrients()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #252525;background:#1a1a1a;color:#888;font-size:11px;font-weight:700;margin-bottom:12px" ${nutStatus==="loading"?"disabled":""}>↻ Recalculate Nutrient Breakdown</button>
+          ${nutStatus==="loading"?`<div class="ps loading" style="margin-bottom:12px">⏳ Estimating nutrients per meal...</div>`:""}
+        `}
+        <div style="border-top:1px solid #1e1e1e;padding-top:12px">
+          <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🎯 Daily Limits (set by you or your doctor)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:9px;color:#555;margin-bottom:5px">Sodium target (mg)</div>
+              <input type="number" inputmode="numeric" placeholder="e.g. 2300" value="${nTargets.sodium||""}" onchange="setNutrientTarget('sodium',this.value)"
+                style="width:100%;background:#1a1a1a;border:1px solid #252525;border-radius:8px;padding:9px 10px;color:#fff;font-size:13px;outline:none;-webkit-appearance:none">
+            </div>
+            <div>
+              <div style="font-size:9px;color:#555;margin-bottom:5px">Potassium target (mg)</div>
+              <input type="number" inputmode="numeric" placeholder="e.g. 3500" value="${nTargets.potassium||""}" onchange="setNutrientTarget('potassium',this.value)"
+                style="width:100%;background:#1a1a1a;border:1px solid #252525;border-radius:8px;padding:9px 10px;color:#fff;font-size:13px;outline:none;-webkit-appearance:none">
+            </div>
+          </div>
+        </div>
+        ${S.mealNutrients?`
+        <div style="border-top:1px solid #1e1e1e;padding-top:12px;margin-top:12px">
+          <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📈 This Week — Sodium & Potassium</div>
+          ${[["sodium","Sodium"],["potassium","Potassium"]].map(([key,label])=>{
+            const target=nTargets[key];
+            return`<div style="margin-bottom:10px">
+              <div style="font-size:9px;color:#666;margin-bottom:6px">${label}${target?` (target ${target}mg)`:""}</div>
+              ${DAYS.map(d=>{
+                const t=todaysNutrientTotals(d);
+                const val=t?Math.round(t[key]):0;
+                const pct=target?Math.min(100,Math.round(val/target*100)):Math.min(100,Math.round(val/40));
+                const color=!target?"#F0EDE5":val>target?"#f87171":pct>=80?"#fbbf24":"#4ade80";
+                return`<div class="step-row">
+                  <div class="step-day">${d}</div>
+                  <div class="step-bar-bg" style="flex:1"><div class="step-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+                  <div class="step-val" style="color:${color}">${val?val+"mg":"–"}</div>
+                </div>`;
+              }).join("")}
+            </div>`;
+          }).join("")}
+        </div>`:""}
+      </div>`;
+    }
 
     // ── MACRO CALCULATOR ──
     const macros=S.macros||{};
@@ -1558,6 +1700,14 @@ function render(){
       <div class="ss"><div class="ss-title">💾 Backup & Restore</div>
       <div class="card" style="padding:14px">
         <div style="font-size:11px;color:#888;margin-bottom:12px;line-height:1.5">Export all your data — workouts, PRs, meals, body weight, recovery, everything — as a backup file. Restore it on a new phone or after clearing your browser.</div>
+        ${(()=>{
+          const d=daysSinceBackup();
+          const overdue=d===null||d>=14;
+          return`<div style="background:${overdue?"#2e1a1a":"#1a1a1a"};border:1px solid ${overdue?"#f8717155":"#252525"};border-radius:8px;padding:10px 12px;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:${overdue?"#f87171":"#4ade80"}">${d===null?"⚠️ Never backed up":overdue?`⚠️ Last backup: ${d} day${d===1?"":"s"} ago`:`✓ Last backup: ${d===0?"today":d+" day"+(d===1?"":"s")+" ago"}`}</div>
+            ${overdue?`<div style="font-size:10px;color:#999;margin-top:3px">It's been a while — export a backup now in case anything happens to your device or home screen icon.</div>`:""}
+          </div>`;
+        })()}
         <button onclick="exportData()" style="width:100%;padding:12px;border-radius:8px;border:none;background:#F0EDE5;color:#000;font-size:12px;font-weight:800;margin-bottom:8px">⬇️ Export My Data (Backup)</button>
         <label style="display:block;width:100%;padding:12px;border-radius:8px;border:1px solid #F0EDE5;background:transparent;color:#F0EDE5;font-size:12px;font-weight:800;text-align:center;cursor:pointer;box-sizing:border-box">
           ⬆️ Restore From Backup
@@ -1676,12 +1826,16 @@ function buildCoachContext(){
   const ci=S.checkins[w]?.[todayDayKey]||{};
   // Water
   const water=S.water[w]?.[todayDayKey]||0;
+  // Sodium/potassium (only available once per-meal breakdown has been calculated)
+  const nTotals=todaysNutrientTotals(todayDayKey);
+  const nTargets=S.nutrientTargets||{};
 
   return `CONTEXT ABOUT ${P().name.toUpperCase()}:
 - ${P().name}, ${pHeight()}${latestBW?", "+latestBW+" lbs":", started at "+P().startWeight+" lbs"}, trains ${P().schedule} Mon-Fri
 - Program: Progress Not Perfection (${S.mode==="gym"?"Gym":"Home"} Edition), Week ${S.week}, progressive overload
 - Goal: ${goal==="recomp"?"body recomposition":goal==="fatloss"?"fat loss":"lean bulk"}
 ${targets?`- Daily targets: ${targets.calories} kcal, ${targets.protein}g protein, ${targets.carbs}g carbs, ${targets.fat}g fat`:""}
+${nTotals&&(nTargets.sodium||nTargets.potassium)?`- Today's sodium: ${Math.round(nTotals.sodium)}mg${nTargets.sodium?` (target ${nTargets.sodium}mg)`:""}. Today's potassium: ${Math.round(nTotals.potassium)}mg${nTargets.potassium?` (target ${nTargets.potassium}mg)`:""}`:""}
 - Today is ${now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}, current device time: ${now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}
 - Bedtime target: ${P().bedtime}
 - MEALS EATEN TODAY: ${eaten.length?eaten.join(", "):"none checked off yet"}
@@ -1692,7 +1846,7 @@ ${ci.energy?`- Today's check-in: energy ${ci.energy}/5, soreness ${ci.soreness||
 - Weeks logged: ${vols.length}. Top strength gains: ${gains.slice(0,3).map(g=>`${g.name} +${g.pct}%`).join(", ")||"none yet"}
 - His meal plan: ${MEALS.map((m,i)=>`Meal ${i+1}: ${m.items.join(", ")}`).join(" | ")}
 
-You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime.`;
+You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime. If he asks about sodium or potassium and no data is shown above, tell him to calculate the nutrient breakdown in the Meals tab first.`;
 }
 
 async function sendCoachMsg(){
@@ -1744,6 +1898,10 @@ function coachQuick(msg){
 }
 
 // ── Backup & Restore ──────────────────────────────────────────────────────────
+function daysSinceBackup(){
+  if(!S.lastBackup)return null;
+  return Math.floor((Date.now()-new Date(S.lastBackup).getTime())/(24*60*60*1000));
+}
 function exportData(){
   const backup={
     app:"Progress Not Perfection",
@@ -1757,6 +1915,8 @@ function exportData(){
   const dateStr=new Date().toISOString().slice(0,10);
   a.href=url;a.download=`ProgressNotPerfection_Backup_${dateStr}.json`;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
+  S.lastBackup=new Date().toISOString();
+  saveS(S);re();
 }
 function importData(input){
   const file=input.files[0];
