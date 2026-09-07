@@ -1819,9 +1819,18 @@ function buildCoachContext(){
   const todayMeals=S.meals[w]?.[todayDayKey]||{};
   const eaten=MEALS.filter((_,i)=>todayMeals[i]).map(m=>m.name);
   const notEaten=MEALS.filter((_,i)=>!todayMeals[i]).map(m=>m.name);
-  // Today's workout if logged
+  // Today's ACTUAL logged sets/weights (not just a count) — lets the coach say
+  // things like "you did 135lbs on bench" instead of just "you logged something"
   const todayLog=S.logs[w]?.[todayDayKey];
-  const todayWorkout=todayLog?Object.keys(todayLog).length+" exercises logged today":"No workout logged today";
+  const todayProg=getDayWorkout(todayDayKey);
+  let todayWorkout="No workout logged today";
+  if(todayLog&&todayProg){
+    const lines=todayProg.exercises.map((ex,ei)=>{
+      const el=todayLog[ei];if(!el||!Object.values(el).some(s=>s.w))return null;
+      return `${ex.name}: ${Object.values(el).map(s=>`${s.w||"?"}x${s.r||"?"}`).join(", ")}`;
+    }).filter(Boolean);
+    if(lines.length)todayWorkout=`Today's workout so far (${todayProg.label}):\n${lines.join("\n")}`;
+  }
   // Recent check-in
   const ci=S.checkins[w]?.[todayDayKey]||{};
   // Water
@@ -1829,6 +1838,19 @@ function buildCoachContext(){
   // Sodium/potassium (only available once per-meal breakdown has been calculated)
   const nTotals=todaysNutrientTotals(todayDayKey);
   const nTargets=S.nutrientTargets||{};
+  // This week's PRs + plateaus
+  const allPRs=getPRs();
+  const prsThisWeek=allPRs.filter(pr=>pr.week===S.week);
+  const plateaus=gains.filter(g=>g.pct<=0).slice(0,3);
+  // Bodyweight trend
+  const bwTrend=bwE.length>=2?`${bwE[0][1]}lbs → ${latestBW}lbs (${(latestBW-bwE[0][1])>0?"+":""}${(latestBW-bwE[0][1]).toFixed(1)}lbs since Week ${+bwE[0][0].slice(1)})`:null;
+  // Missed workout pattern (recent)
+  const missedEntries=[];
+  Object.entries(S.missed||{}).forEach(([mw,days])=>Object.entries(days).forEach(([d,v])=>{if(v)missedEntries.push({week:+mw.slice(1),day:d});}));
+  const recentMissed=missedEntries.filter(m=>m.week>=S.week-2);
+  // Weekly step average (this week)
+  const weekSteps=DAYS.map(d=>S.steps[w]?.[d]).filter(Boolean);
+  const avgStepsThisWeek=weekSteps.length?Math.round(weekSteps.reduce((a,b)=>a+b,0)/weekSteps.length):null;
 
   return `CONTEXT ABOUT ${P().name.toUpperCase()}:
 - ${P().name}, ${pHeight()}${latestBW?", "+latestBW+" lbs":", started at "+P().startWeight+" lbs"}, trains ${P().schedule} Mon-Fri
@@ -1843,10 +1865,15 @@ ${nTotals&&(nTargets.sodium||nTargets.potassium)?`- Today's sodium: ${Math.round
 - Water today: ${water}/16 cups
 - ${todayWorkout}
 ${ci.energy?`- Today's check-in: energy ${ci.energy}/5, soreness ${ci.soreness||"–"}/5, sleep ${ci.sleep||"–"}hrs`:""}
-- Weeks logged: ${vols.length}. Top strength gains: ${gains.slice(0,3).map(g=>`${g.name} +${g.pct}%`).join(", ")||"none yet"}
+- Weeks logged: ${vols.length}. Top strength gains overall: ${gains.slice(0,3).map(g=>`${g.name} +${g.pct}%`).join(", ")||"none yet"}
+${prsThisWeek.length?`- PRs set THIS WEEK: ${prsThisWeek.map(pr=>`${pr.name} ${pr.weight}lbs`).join(", ")}`:""}
+${plateaus.length?`- Possible plateaus (no gain over logged history): ${plateaus.map(g=>g.name).join(", ")}`:""}
+${bwTrend?`- Bodyweight trend: ${bwTrend}`:""}
+${recentMissed.length?`- Missed ${recentMissed.length} workout${recentMissed.length===1?"":"s"} in the last 2 weeks (${recentMissed.map(m=>`Wk${m.week} ${m.day}`).join(", ")})`:""}
+${avgStepsThisWeek?`- Avg steps this week so far: ${avgStepsThisWeek.toLocaleString()}/day (goal ${STEP_GOAL.toLocaleString()})`:""}
 - His meal plan: ${MEALS.map((m,i)=>`Meal ${i+1}: ${m.items.join(", ")}`).join(" | ")}
 
-You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime. If he asks about sodium or potassium and no data is shown above, tell him to calculate the nutrient breakdown in the Meals tab first.`;
+You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant — you now have his actual logged weights/reps for today, this week's PRs, plateaus, bodyweight trend, missed-workout pattern, and step average, so use them instead of speaking in generalities. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime. If he asks about sodium or potassium and no data is shown above, tell him to calculate the nutrient breakdown in the Meals tab first.`;
 }
 
 async function sendCoachMsg(){
