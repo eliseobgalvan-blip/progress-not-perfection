@@ -403,7 +403,9 @@ function autoWeek(state){
   }
   return state;
 }
-function saveS(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch{}}
+function saveS(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){if(!saveS._warned){saveS._warned=true;alert("⚠️ Phone storage is full — your training data may not be saving. Export a backup right now (Settings → Export My Data).");}}}
+// Escape anything rendered into innerHTML (AI output, parsed plans, notes) — prevents HTML/script injection
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 let S=loadS();
 const wk=w=>"w"+w;
 
@@ -435,13 +437,13 @@ function wtState(){
   const W=wk(S.week);
   return S.wtimes[W]?.[activeDay]||null;
 }
-function wtElapsedSec(){
-  const t=wtState();
-  if(!t)return 0;
+function wtElapsedSecFor(w,d){
+  const t=S.wtimes[w]?.[d];if(!t)return 0;
   let e=t.accrued||0;
   if(t.startedAt)e+=Math.floor((Date.now()-t.startedAt)/1000);
   return e;
 }
+function wtElapsedSec(){return wtElapsedSecFor(wk(S.week),activeDay);}
 function wtIsRunning(){ const t=wtState(); return !!(t&&t.startedAt); }
 function startWorkoutTimer(){
   const W=wk(S.week);
@@ -596,8 +598,8 @@ async function doReport(){
   DAYS.forEach(d=>{
     const dl=S.logs[w]?.[d];if(!dl)return;
     workout+=`\n${getPROG()[d].label}:\n`;
-    const wtime=S.wtimes[w]?.[d];
-    if(wtime?.elapsed)workout+=`  Duration: ${fmtTime(wtime.elapsed)}\n`;
+    const wSecs=wtElapsedSecFor(w,d);
+    if(wSecs>0)workout+=`  Duration: ${fmtTime(wSecs)}\n`;
     getPROG()[d].exercises.forEach((ex,ei)=>{
       const el=dl[ei];if(!el)return;
       workout+=`  ${ex.name}: ${Object.values(el).map(s=>`${s.w||"?"}lbs x${s.r||"?"}`).join(", ")} Vol:${totalVol(el)}lbs`;
@@ -637,8 +639,8 @@ function exportPDF(){
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:780px;margin:0 auto;color:#111}.hdr{border-bottom:3px solid #F0EDE5;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end}.brand{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-bottom:4px}.name{font-size:26px;font-weight:800}.sub{font-size:12px;color:#666;margin-top:2px}.badge{background:#F0EDE5;color:#000;font-weight:800;padding:8px 16px;border-radius:8px;text-align:center}.bl{font-size:9px;letter-spacing:2px;display:block}.bn{font-size:22px;line-height:1.1}.sec{margin-bottom:22px}.st{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#F0EDE5;font-weight:700;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #f0f0f0}.rpt{font-size:12px;line-height:1.8;color:#333;white-space:pre-wrap}.gg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gi{background:#f9f9f9;border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center}.gn{font-size:10px;color:#555}.gv{font-size:12px;font-weight:800;color:#16a34a;text-align:right}.gv.dn{color:#dc2626}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#f5f5f5;padding:5px 8px;text-align:left;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#888}td{padding:5px 8px;border-bottom:1px solid #f0f0f0;color:#333}.dh{background:#111;color:#F0EDE5;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:5px 8px}.ft{margin-top:30px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:9px;color:#bbb}@media print{body{padding:20px}}</style></head><body>
 <div class="hdr"><div><div class="brand">Progress Not Perfection · Structured Physique Building</div><div class="name">${P().name}</div><div class="sub">Weekly Training Report · ${pHeight()}${bw?` · ${bw} lbs`:""}</div></div><div class="badge"><span class="bl">WEEK</span><span class="bn">${S.week}</span></div></div>
 <div class="sec"><div class="st">Coach Report</div><div class="rpt">${reportTxt.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div></div>
-<div class="sec"><div class="st">Strength Gains (All Time)</div><div class="gg">${gains.slice(0,8).map(g=>`<div class="gi"><div class="gn">${g.name}</div><div class="gv ${g.pct<0?"dn":""}">${g.pct>0?"+":""}${g.pct}%<br><span style="font-size:9px;font-weight:400;color:#888">${g.first}→${g.last}lbs</span></div></div>`).join("")}${!gains.length?'<div style="color:#999;font-size:11px;grid-column:span 2">No multi-week data yet</div>':""}</div></div>
-<div class="sec"><div class="st">Workouts — Week ${S.week}</div><table>${DAYS.map(d=>{const dl=S.logs[w]?.[d];const wt=S.wtimes[w]?.[d];if(!dl)return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}</td></tr><tr><td colspan="3" style="color:#bbb;font-style:italic;padding:6px 8px">Not logged</td></tr>`;const rows=getPROG()[d].exercises.map((ex,ei)=>{const el=dl[ei];if(!el)return"";const note=S.exnotes[w]?.[d]?.[ei];return`<tr><td>${ex.name}${note?` <span style="color:#888;font-size:9px">[${note}]</span>`:""}</td><td>${Object.values(el).map((s,i)=>`S${i+1}:${s.w||"?"}×${s.r||"?"}`).join(" · ")}</td><td style="color:#F0EDE5;font-weight:700">${totalVol(el).toLocaleString()}lbs</td></tr>`;}).join("");return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}${wt?.elapsed?` · ${fmtTime(wt.elapsed)}`:""}</td></tr><tr><th>Exercise</th><th>Sets</th><th>Volume</th></tr>${rows}`;}).join("")}</table></div>
+<div class="sec"><div class="st">Strength Gains (All Time)</div><div class="gg">${gains.slice(0,8).map(g=>`<div class="gi"><div class="gn">${esc(g.name)}</div><div class="gv ${g.pct<0?"dn":""}">${g.pct>0?"+":""}${g.pct}%<br><span style="font-size:9px;font-weight:400;color:#888">${g.first}→${g.last}lbs</span></div></div>`).join("")}${!gains.length?'<div style="color:#999;font-size:11px;grid-column:span 2">No multi-week data yet</div>':""}</div></div>
+<div class="sec"><div class="st">Workouts — Week ${S.week}</div><table>${DAYS.map(d=>{const dl=S.logs[w]?.[d];const wtSecs=wtElapsedSecFor(w,d);if(!dl)return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}</td></tr><tr><td colspan="3" style="color:#bbb;font-style:italic;padding:6px 8px">Not logged</td></tr>`;const rows=getPROG()[d].exercises.map((ex,ei)=>{const el=dl[ei];if(!el)return"";const note=S.exnotes[w]?.[d]?.[ei];return`<tr><td>${esc(ex.name)}${note?` <span style="color:#888;font-size:9px">[${esc(note)}]</span>`:""}</td><td>${Object.values(el).map((s,i)=>`S${i+1}:${s.w||"?"}×${s.r||"?"}`).join(" · ")}</td><td style="color:#F0EDE5;font-weight:700">${totalVol(el).toLocaleString()}lbs</td></tr>`;}).join("");return`<tr><td class="dh" colspan="3">${getPROG()[d].label} — ${getPROG()[d].focus}${wtSecs>0?` · ${fmtTime(wtSecs)}`:""}</td></tr><tr><th>Exercise</th><th>Sets</th><th>Volume</th></tr>${rows}`;}).join("")}</table></div>
 <div class="ft"><span>${P().name} · Progress Not Perfection</span><span>Week ${S.week} Report · ${new Date().toLocaleDateString()}</span></div></body></html>`;
   const blob=new Blob([html],{type:"text/html"});
   const url=URL.createObjectURL(blob);
@@ -843,7 +845,10 @@ async function parseMealPlan(text){
 }
 function applyWorkoutPlan(){
   if(!parsedPlan)return;
-  Object.assign(PROG,parsedPlan);S.customProgram=parsedPlan;saveS(S);
+  S.customProgram=parsedPlan;
+  // Remember per mode so toggling Gym/Home doesn't lose either plan
+  if(S.mode==="gym")S.customProgramGym=parsedPlan;else S.customProgramHome=parsedPlan;
+  saveS(S);
   parsedPlan=null;parseStatus="";workoutPasteText="";
   alert("✅ Workout plan updated! All logged data preserved.");re();
 }
@@ -857,9 +862,15 @@ function applyMealPlan(){
   alert("✅ Meal plan updated!");re();
 }
 (function loadCustomPlans(){
-  // Custom plans stored per mode
+  // Custom plans stored per mode — backfill per-mode keys from legacy S.customProgram
+  if(S.customProgram){
+    const k=S.mode==="gym"?"customProgramGym":"customProgramHome";
+    if(!S[k])S[k]=S.customProgram;
+  }
   if(S.customProgramGym&&S.mode==="gym")S.customProgram=S.customProgramGym;
   if(S.customProgramHome&&S.mode==="home")S.customProgram=S.customProgramHome;
+  // Restore custom meal plan (applyMealPlan mutates the MEALS const, which resets on reload)
+  if(S.customMeals&&S.customMeals.length){MEALS.length=0;S.customMeals.forEach(m=>MEALS.push(m));}
 })();
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -923,7 +934,7 @@ function render(){
   const prevLog=S.logs[PW]?.[activeDay]||{};
   const mealData=S.meals[W]||{};
   const ci=S.checkins[W]?.[activeDay]||{};
-  const PROG=getPROG();const vols=weeklyVols(),gains=allGains(),day=PROG[activeDay];
+  const PROG=getPROG();const vols=weeklyVols(),gains=allGains(),day=PROG[activeDay]||PROG["Mon"];
   const wtime=S.wtimes[W]?.[activeDay];
 
   let html=`<div class="hdr">
@@ -1086,7 +1097,7 @@ function render(){
             <div class="pv${isUp?" up":""}">${p.w||"–"}${isUp?"↑":""}</div>
           </div>`;
         }
-        html+=`<textarea class="ex-note" rows="1" placeholder="Notes for this exercise..." onchange="setExNote('${activeDay}',${ei},this.value)">${note}</textarea>`;
+        html+=`<textarea class="ex-note" rows="1" placeholder="Notes for this exercise..." onchange="setExNote('${activeDay}',${ei},this.value)">${esc(note)}</textarea>`;
       } else {
         html+=`<div style="font-size:11px;color:#888;padding:4px 0 8px">Marked as not completed today.${note?` Note: ${note}`:""}</div>`;
       }
@@ -1100,7 +1111,7 @@ function render(){
         <div style="font-size:12px;color:#888">Mark day as missed?</div>
         <button onclick="toggleMissed('${activeDay}')" style="padding:6px 14px;border-radius:8px;border:1px solid ${isMissed?"#f87171":"#252525"};background:${isMissed?"#f8717122":"#1a1a1a"};color:${isMissed?"#f87171":"#555"};font-size:11px;font-weight:700">${isMissed?"✓ Missed":"Mark Missed"}</button>
       </div>
-      ${isMissed?`<div style="margin-top:8px"><input type="text" placeholder="Reason (optional)..." value="${S.missed[W][activeDay].reason||""}" onchange="setMissedReason('${activeDay}',this.value)" style="font-size:11px;padding:6px 10px"></div>`:""}
+      ${isMissed?`<div style="margin-top:8px"><input type="text" placeholder="Reason (optional)..." value="${esc(S.missed[W][activeDay].reason||"")}" onchange="setMissedReason('${activeDay}',this.value)" style="font-size:11px;padding:6px 10px"></div>`:""}
     </div></div>`;
     } else {
       // Rest day (Sat/Sun unassigned)
@@ -1274,7 +1285,7 @@ function render(){
             <div style="font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Fat</div>
           </div>
         </div>
-        ${targets.note?`<div style="font-size:11px;color:#888;line-height:1.6;background:#1a1a1a;border-radius:8px;padding:10px 12px;margin-bottom:10px">${targets.note}</div>`:""}
+        ${targets.note?`<div style="font-size:11px;color:#888;line-height:1.6;background:#1a1a1a;border-radius:8px;padding:10px 12px;margin-bottom:10px">${esc(targets.note)}</div>`:""}
         <button onclick="calcMacroTargets()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #252525;background:#1a1a1a;color:#888;font-size:11px;font-weight:700;margin-bottom:12px">↻ Recalculate Targets</button>
       `:`
         <button class="btng" onclick="calcMacroTargets()" style="margin-bottom:12px">⚡ Calculate My Macro Targets</button>
@@ -1286,13 +1297,13 @@ function render(){
       <div style="border-top:1px solid #1e1e1e;padding-top:12px">
         <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🔍 Food Macro Lookup</div>
         <div style="display:flex;gap:6px;margin-bottom:8px">
-          <input type="text" id="foodLookup" placeholder="e.g. 6oz grilled chicken breast" value="${macros.lookupText||""}" onchange="S.macros=S.macros||{};S.macros.lookupText=this.value;saveS(S)" style="flex:1;font-size:12px;padding:9px 10px">
+          <input type="text" id="foodLookup" placeholder="e.g. 6oz grilled chicken breast" value="${esc(macros.lookupText||"")}" onchange="S.macros=S.macros||{};S.macros.lookupText=this.value;saveS(S)" style="flex:1;font-size:12px;padding:9px 10px">
           <button onclick="lookupFood(document.getElementById('foodLookup').value)" style="padding:9px 14px;border-radius:8px;border:none;background:#F0EDE5;color:#000;font-size:11px;font-weight:800;white-space:nowrap">Look Up</button>
         </div>
         ${macros.lookupStatus==="loading"?`<div class="ps loading">⏳ Looking up macros...</div>`:""}
         ${macros.lookupResult?`
           <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-top:8px">
-            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">${macros.lookupResult.food}</div>
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">${esc(macros.lookupResult.food)}</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#F0EDE5">${macros.lookupResult.calories}</div><div style="font-size:8px;color:#555;text-transform:uppercase">kcal</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#4ade80">${macros.lookupResult.protein}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Protein</div></div>
@@ -1317,7 +1328,7 @@ function render(){
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#60a5fa">${macros.planResult.carbs}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Carbs</div></div>
               <div style="text-align:center"><div style="font-size:14px;font-weight:800;color:#fbbf24">${macros.planResult.fat}g</div><div style="font-size:8px;color:#555;text-transform:uppercase">Fat</div></div>
             </div>
-            ${macros.planResult.analysis?`<div style="font-size:11px;color:#ccc;line-height:1.6">${macros.planResult.analysis}</div>`:""}
+            ${macros.planResult.analysis?`<div style="font-size:11px;color:#ccc;line-height:1.6">${esc(macros.planResult.analysis)}</div>`:""}
           </div>
         `:""}
       </div>
@@ -1327,7 +1338,7 @@ function render(){
         <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">🍽️ Dining Out — AI Menu Coach</div>
         <div style="font-size:11px;color:#888;margin-bottom:10px">Date night? Team dinner? Tell AI where you're eating and it picks the best options for your macros — based on what you've already eaten today.</div>
         <div style="display:flex;gap:6px;margin-bottom:8px">
-          <input type="text" id="diningInput" placeholder="e.g. Texas Roadhouse, sushi place, Tex-Mex..." value="${macros.diningText||""}" onchange="S.macros=S.macros||{};S.macros.diningText=this.value;saveS(S)" style="flex:1;font-size:12px;padding:9px 10px">
+          <input type="text" id="diningInput" placeholder="e.g. Texas Roadhouse, sushi place, Tex-Mex..." value="${esc(macros.diningText||"")}" onchange="S.macros=S.macros||{};S.macros.diningText=this.value;saveS(S)" style="flex:1;font-size:12px;padding:9px 10px">
         </div>
         <div style="display:flex;gap:6px;margin-bottom:8px">
           ${["Dinner","Lunch","Big meal — going all in"].map(occ=>{
@@ -1339,7 +1350,7 @@ function render(){
         ${macros.diningStatus==="loading"?`<div class="ps loading" style="margin-top:8px">⏳ Checking the menu against your macros...</div>`:""}
         ${macros.diningResult?`
           <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-top:8px">
-            <div style="font-size:11px;color:#ccc;line-height:1.7;white-space:pre-wrap">${macros.diningResult}</div>
+            <div style="font-size:11px;color:#ccc;line-height:1.7;white-space:pre-wrap">${esc(macros.diningResult)}</div>
           </div>
         `:""}
       </div>
@@ -1347,7 +1358,7 @@ function render(){
 
     <div class="card" style="padding:12px 14px">
       <div class="sl" style="margin-bottom:8px">Notes / Substitutions</div>
-      <textarea rows="3" placeholder="Any swaps, skipped meals, or notes..." onchange="setNote(this.value)">${mealData.notes||""}</textarea>
+      <textarea rows="3" placeholder="Any swaps, skipped meals, or notes..." onchange="setNote(this.value)">${esc(mealData.notes||"")}</textarea>
     </div></div>`;
   }
   if(activeTab==="body"){
@@ -1533,7 +1544,7 @@ function render(){
           </div>
         `:coachChat.map(m=>`
           <div style="display:flex;justify-content:${m.role==="user"?"flex-end":"flex-start"};margin-bottom:10px">
-            <div style="max-width:85%;padding:10px 14px;border-radius:${m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px"};background:${m.role==="user"?"#F0EDE5":"#1a1a1a"};color:${m.role==="user"?"#000":"#ccc"};font-size:12px;line-height:1.6;white-space:pre-wrap;font-weight:${m.role==="user"?"600":"400"}">${m.content}</div>
+            <div style="max-width:85%;padding:10px 14px;border-radius:${m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px"};background:${m.role==="user"?"#F0EDE5":"#1a1a1a"};color:${m.role==="user"?"#000":"#ccc"};font-size:12px;line-height:1.6;white-space:pre-wrap;font-weight:${m.role==="user"?"600":"400"}">${esc(m.content)}</div>
           </div>
         `).join("")}
         ${coachLoading?`<div style="display:flex;justify-content:flex-start;margin-bottom:10px"><div style="padding:10px 16px;border-radius:14px 14px 14px 4px;background:#1a1a1a;color:#666;font-size:12px">Coach is thinking...</div></div>`:""}
@@ -1556,7 +1567,7 @@ function render(){
       </div>
       <div class="aic">
         <div class="aih"><div class="ail">⚡ AI Coach</div><button class="aib" onclick="doInsight()">Analyze</button></div>
-        <div class="ait${insightTxt?" ld":""}">${insightTxt||"Tap Analyze to get coaching feedback on your data."}</div>
+        <div class="ait${insightTxt?" ld":""}">${esc(insightTxt)||"Tap Analyze to get coaching feedback on your data."}</div>
       </div>`;
 
     if(aView==="overview"){
@@ -1589,7 +1600,7 @@ function render(){
     }
     if(aView==="exercise"){
       html+=`<div class="dtabs" style="margin-bottom:12px">${DAYS.map(d=>`<button class="dtab${d===activeDay?" active":""}" onclick="setDay('${d}');setAView('exercise')" style="min-width:50px"><div class="dd">${d}</div></button>`).join("")}</div>`;
-      getPROG()[activeDay].exercises.forEach((ex,ei)=>{
+      (getPROG()[activeDay]||getPROG()["Mon"]).exercises.forEach((ex,ei)=>{
         const trend=exTrend(activeDay,ei),isSel=selEx===ei;
         const latest=trend[trend.length-1],first=trend[0];
         const gained=trend.length>=2?latest.weight-first.weight:null;
@@ -1623,9 +1634,9 @@ function render(){
       </div>
       <button class="btng" onclick="doReport()" ${reportTxt==="Generating..."?"disabled":""}>⚡ Generate Week ${S.week} Report</button>
       ${reportTxt&&reportTxt!=="Generating..."?`
-        <div class="rpt-prev"><div class="sl">Report Preview</div><div class="rpt-txt">${reportTxt}</div></div>
+        <div class="rpt-prev"><div class="sl">Report Preview</div><div class="rpt-txt">${esc(reportTxt)}</div></div>
         <button class="wa-btn" onclick="shareWhatsApp()">💬 Share via WhatsApp</button>
-        <button class="btno" onclick="exportPDF()">📄 Download PDF Report</button>`:""}
+        <button class="btno" onclick="exportPDF()">📄 Download Report (HTML)</button>`:""}
       ${reportTxt==="Generating..."?`<div style="text-align:center;padding:20px;color:#888;font-size:12px">Generating your report...</div>`:""}
     </div>`;
   }
@@ -1665,7 +1676,7 @@ function render(){
         ${parseStatus==="err-workout"?`<div class="ps err">❌ Couldn't parse. Make sure it includes day labels and exercises with sets/reps.</div>`:""}
         ${parsedPlan&&parseStatus==="ok-workout"?`
           <div class="ps ok">✅ ${Object.keys(parsedPlan).length} days detected — review below then Apply.</div>
-          <div class="pp">${Object.entries(parsedPlan).map(([d,v])=>`<div class="ppd">${d} — ${v.focus}</div>${v.exercises.map(ex=>`<div class="ppe">· ${ex.name} ${ex.sets}×${ex.reps}</div>`).join("")}`).join("")}</div>
+          <div class="pp">${Object.entries(parsedPlan).map(([d,v])=>`<div class="ppd">${esc(d)} — ${esc(v.focus)}</div>${v.exercises.map(ex=>`<div class="ppe">· ${esc(ex.name)} ${ex.sets}×${esc(ex.reps)}</div>`).join("")}`).join("")}</div>
           <button class="btng" style="margin-top:12px" onclick="applyWorkoutPlan()">✅ Apply Workout Plan</button>`:""}
         ${!parsedPlan&&parseStatus!=="loading-workout"?`<button class="btng" style="margin-top:10px" onclick="parseWorkoutPlan(document.getElementById('workoutTA')?.value||workoutPasteText)">⚡ Parse Workout Plan</button>`:""}
       </div></div>
@@ -1683,7 +1694,7 @@ function render(){
         ${parseStatus==="err-meal"?`<div class="ps err">❌ Couldn't parse. Make sure it lists meals with food items and quantities.</div>`:""}
         ${parsedMeals&&parseStatus==="ok-meal"?`
           <div class="ps ok">✅ ${parsedMeals.length} meals detected — review below then Apply.</div>
-          <div class="pp">${parsedMeals.map(m=>`<div class="ppd">${m.name}</div>${m.items.map(i=>`<div class="ppe">· ${i}</div>`).join("")}`).join("")}</div>
+          <div class="pp">${parsedMeals.map(m=>`<div class="ppd">${esc(m.name)}</div>${m.items.map(i=>`<div class="ppe">· ${esc(i)}</div>`).join("")}`).join("")}</div>
           <button class="btng" style="margin-top:12px" onclick="applyMealPlan()">✅ Apply Meal Plan</button>`:""}
         ${!parsedMeals&&parseStatus!=="loading-meal"?`<button class="btng" style="margin-top:10px" onclick="parseMealPlan(document.getElementById('mealTA')?.value||mealPasteText)">⚡ Parse Meal Plan</button>`:""}
       </div></div>
@@ -1719,7 +1730,7 @@ function render(){
       <div class="ss"><div class="ss-title" style="color:#f87171">⚠️ Data</div>
       <div class="card" style="padding:14px">
         <div style="font-size:11px;color:#888;margin-bottom:10px">Reset removes ALL logged data. Plan is kept. Cannot be undone.</div>
-        <button onclick="if(confirm('Delete all logged data?')){S.logs={};S.meals={};S.bodyweight={};S.checkins={};S.water={};S.missed={};S.supps={};S.steps={};S.exnotes={};S.wtimes={};saveS(S);re();}" style="width:100%;padding:12px;border-radius:8px;border:1px solid #f87171;background:transparent;color:#f87171;font-size:12px;font-weight:700">Reset All Logged Data</button>
+        <button onclick="if(confirm('Delete all logged data?'))resetAllData()" style="width:100%;padding:12px;border-radius:8px;border:1px solid #f87171;background:transparent;color:#f87171;font-size:12px;font-weight:700">Reset All Logged Data</button>
       </div></div>
     </div>`;
   }
@@ -1729,6 +1740,14 @@ function render(){
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
+// Wipe logged data for real: also clears legacy storage keys so loadS() can't
+// resurrect "deleted" data from an old key on next launch. Plan/profile kept.
+function resetAllData(){
+  [KEY,...OLD_KEYS].forEach(k=>{try{localStorage.removeItem(k);}catch{}});
+  S.logs={};S.meals={};S.bodyweight={};S.checkins={};S.water={};S.missed={};S.supps={};S.steps={};S.exnotes={};S.wtimes={};S.exskip={};S.macros={};S.coachChat={};S.mealNutrients=null;
+  coachChat=[];
+  saveS(S);re();
+}
 function chWeek(d){S.week=Math.max(1,S.week+d);saveS(S);re();}
 function setTab(t){activeTab=t;re();}
 function setDay(d){activeDay=d;re();}
@@ -1775,7 +1794,7 @@ function toggleMissed(day){
   saveS(S);re();
 }
 function setMissedReason(day,val){const w=wk(S.week);if(S.missed[w]?.[day])S.missed[w][day].reason=val;saveS(S);}
-function setMode(mode){S.mode=mode;S.customProgram=null;saveS(S);re();}
+function setMode(mode){S.mode=mode;S.customProgram=(mode==="gym"?S.customProgramGym:S.customProgramHome)||null;saveS(S);re();}
 function assignDay(weekendDay,sourceDay){
   const w=wk(S.week);
   if(!S.dayAssign[w])S.dayAssign[w]={};
@@ -1803,6 +1822,10 @@ function loadCoachChat(){ return (S.coachChat && S.coachChat[todayKey()]) || [];
 function saveCoachChat(){
   if(!S.coachChat)S.coachChat={};
   S.coachChat[todayKey()]=coachChat;
+  // Prune history older than 7 days — otherwise this grows without bound
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);
+  const cutoffKey=cutoff.toISOString().slice(0,10);
+  Object.keys(S.coachChat).forEach(k=>{if(k<cutoffKey)delete S.coachChat[k];});
   saveS(S);
 }
 function buildCoachContext(){
@@ -1956,6 +1979,7 @@ function importData(input){
       if(!data.logs&&!data.week)throw new Error("Not a valid backup");
       if(!confirm(`Restore backup from ${backup.exportedAt?new Date(backup.exportedAt).toLocaleDateString():"unknown date"}? This replaces ALL current data.`))return;
       S={...def(),...data};
+      coachChat=loadCoachChat(); // refresh module-level chat so the next message doesn't overwrite imported history
       saveS(S);
       alert("✅ Backup restored! All your data is back.");
       re();
