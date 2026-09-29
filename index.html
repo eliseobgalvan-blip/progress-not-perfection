@@ -8,8 +8,15 @@
 <meta name="apple-mobile-web-app-title" content="Progress">
 <meta name="theme-color" content="#0a0a0a">
 <title>Progress Not Perfection</title>
-<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Progress%20Not%20Perfection%22,%22short_name%22:%22Progress%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230a0a0a%22,%22theme_color%22:%22%230a0a0a%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%230a0a0a'/%3E%3Crect%20x='70'%20y='156'%20width='28'%20height='200'%20rx='10'%20fill='%23F0EDE5'/%3E%3Crect%20x='110'%20y='186'%20width='20'%20height='140'%20rx='8'%20fill='%23F0EDE5'/%3E%3Crect%20x='130'%20y='244'%20width='252'%20height='24'%20rx='12'%20fill='%23F0EDE5'/%3E%3Crect%20x='382'%20y='186'%20width='20'%20height='140'%20rx='8'%20fill='%23F0EDE5'/%3E%3Crect%20x='414'%20y='156'%20width='28'%20height='200'%20rx='10'%20fill='%23F0EDE5'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230a0a0a'/><rect x='70' y='156' width='28' height='200' rx='10' fill='%23F0EDE5'/><rect x='110' y='186' width='20' height='140' rx='8' fill='%23F0EDE5'/><rect x='130' y='244' width='252' height='24' rx='12' fill='%23F0EDE5'/><rect x='382' y='186' width='20' height='140' rx='8' fill='%23F0EDE5'/><rect x='414' y='156' width='28' height='200' rx='10' fill='%23F0EDE5'/></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#0a0a0a;color:#f0f0f0;font-family:-apple-system,'Helvetica Neue',sans-serif;overscroll-behavior:none}
@@ -364,9 +371,9 @@ function getDayWorkout(dayKey){
 }
 
 const KEY="eli-training-v4";
-const AI_URL="https://sinpausa-ai.eliseobgalvan.workers.dev"; // Cloudflare Worker proxy (holds API key server-side)
+const AI_URL="https://progress-not-perfection-ai.eliseobgalvan.workers.dev"; // Cloudflare Worker proxy (holds API key server-side)
 const OLD_KEYS=["eli-training-v3","eli-training-v2","eli-training-v1","eli-prostandard-v1","eli-workout-v3","eli-workout-v2","eli-workout-v1"];
-function def(){return{week:currentWeek(),logs:{},meals:{},bodyweight:{},checkins:{},water:{},missed:{},supps:{},steps:{},exnotes:{},wtimes:{},mode:"gym",dayAssign:{},macros:{},profile:null,exskip:{},coachChat:{},nutrientTargets:{},mealNutrients:null,lastBackup:null};}
+function def(){return{week:currentWeek(),logs:{},meals:{},bodyweight:{},measurements:{},checkins:{},water:{},missed:{},supps:{},steps:{},exnotes:{},wtimes:{},mode:"gym",dayAssign:{},macros:{},profile:null,exskip:{},coachChat:{},nutrientTargets:{},mealNutrients:null,lastBackup:null,lastVisit:null};}
 function loadS(){
   try{
     // Try current key first
@@ -408,6 +415,26 @@ function saveS(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){if(!
 function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 let S=loadS();
 const wk=w=>"w"+w;
+
+// ── Reopen recap: computed once per page load, shown on the Log tab ──
+let recapDismissed=false,recapData=null;
+(function(){
+  const now=new Date(),todayStr=localDayStr(now),last=S.lastVisit;
+  if(last&&last<todayStr){
+    const y=new Date(now);y.setDate(y.getDate()-1);
+    const tk=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][now.getDay()];
+    const todayW=getDayWorkout(tk);
+    recapData={
+      yLabel:y.toLocaleDateString("en-US",{weekday:"long",month:"numeric",day:"numeric"}),
+      y:daySummary(y),
+      streak:workoutStreak(),
+      tLabel:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][now.getDay()],
+      todayW:todayW?todayW.label+" — "+todayW.focus:null,
+      todayN:todayW?todayW.exercises.length:0
+    };
+  }
+  S.lastVisit=todayStr;saveS(S);
+})();
 
 // ── Profile helpers ───────────────────────────────────────────────────────────
 function P(){
@@ -797,6 +824,73 @@ function lineChart(data,key="weight"){
   return`<svg viewBox="0 0 ${W} ${H}" class="lc" style="height:80px"><polyline points="${pts.map(p=>`${p.x},${p.y}`).join(" ")}" fill="none" stroke="${G}" stroke-width="2" stroke-linejoin="round"/>${pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${G}"/><text x="${p.x}" y="${H}" text-anchor="middle" font-size="8" fill="#555">Wk${p.wk}</text>`).join("")}</svg>`;
 }
 
+// ── Tape Measurements (monthly, Body tab) ─────────────────────────────────────
+const MEAS_FIELDS=[["neck","Neck"],["shoulders","Shoulders"],["chest","Chest"],["biceps","Biceps"],["waist","Waist"],["hips","Hips"],["thigh","Thigh"],["calf","Calf"]];
+// Fields where a *decrease* is progress (fat loss); everywhere else, increase = progress
+const MEAS_DOWN_GOOD=["waist","hips"];
+let measYM=(()=>{const n=new Date();return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0");})();
+function ymLabel(key){const[y,m]=key.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("en-US",{month:"short",year:"numeric"});}
+function shiftYM(key,delta){const[y,m]=key.split("-").map(Number);const d=new Date(y,m-1+delta,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");}
+function setMeasYM(d){measYM=shiftYM(measYM,d);re();}
+function setMeas(field,val){
+  const all=S.measurements||(S.measurements={});
+  const m=all[measYM]||(all[measYM]={});
+  const v=parseFloat(val);
+  if(v>0)m[field]=Math.round(v*10)/10;else delete m[field];
+  if(!Object.keys(m).length)delete all[measYM];
+  saveS(S);re();
+}
+function measEntries(){return Object.entries(S.measurements||{}).sort((a,b)=>a[0]<b[0]?-1:1);}
+function measChart(pts){
+  const W=260,H=40,pad=8,vals=pts.map(p=>p.v),mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
+  const xy=pts.map((p,i)=>({x:pad+i*(W-pad*2)/(pts.length-1),y:H-pad-(p.v-mn)/rng*(H-pad*2)}));
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:40px;display:block">
+    <polyline points="${xy.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" ")}" fill="none" stroke="${G}" stroke-width="2" stroke-linejoin="round"/>
+    ${xy.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="${G}"/>`).join("")}
+  </svg>
+  <div style="display:flex;justify-content:space-between;font-size:8px;color:#555;margin-top:2px"><span>${esc(pts[0].label)}</span><span>${esc(pts[pts.length-1].label)}</span></div>`;
+}
+
+// ── Reopen recap ──────────────────────────────────────────────────────────────
+function localDayStr(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function weekOf(d){
+  const t=new Date(d);t.setHours(0,0,0,0);
+  const dow=t.getDay(),daysSinceMon=dow===0?6:dow-1;
+  const mon=new Date(t);mon.setDate(mon.getDate()-daysSinceMon);
+  const anchor=new Date(WEEK3_START);anchor.setHours(0,0,0,0);
+  return Math.max(1,3+Math.round((mon-anchor)/(7*24*60*60*1000)));
+}
+function daySummary(date){
+  const w="w"+weekOf(date);
+  const dk=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][date.getDay()];
+  const log=S.logs[w]?.[dk];
+  const logged=!!(log&&Object.values(log).some(ex=>ex&&Object.values(ex).some(s=>s&&s.w)));
+  const meals=S.meals[w]?.[dk]||{};
+  return{
+    dk,
+    logged,
+    mealsDone:Object.values(meals).filter(Boolean).length,
+    mealsTotal:MEALS.length,
+    water:S.water[w]?.[dk]||0,
+    restDay:!getDayWorkout(dk)
+  };
+}
+// Consecutive Mon–Fri training days logged (weekends don't break it)
+function workoutStreak(){
+  let n=0;const d=new Date();d.setHours(0,0,0,0);
+  const dow=d.getDay();
+  if(dow===0)d.setDate(d.getDate()-2);
+  else if(dow===6)d.setDate(d.getDate()-1);
+  else if(!daySummary(d).logged)d.setDate(d.getDate()-1);
+  while(n<365){
+    const dd=d.getDay();
+    if(dd===0||dd===6){d.setDate(d.getDate()-1);continue;}
+    if(!daySummary(d).logged)break;
+    n++;d.setDate(d.getDate()-1);
+  }
+  return n;
+}
+
 // ── PDF Upload ────────────────────────────────────────────────────────────────
 async function readPDFB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 let parseStatus="",parsedPlan=null,parsedMeals=null,workoutPasteText="",mealPasteText="";
@@ -875,7 +969,7 @@ function applyMealPlan(){
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let activeTab="log",activeDay="Mon",aView="overview",selEx=null,recDay="Mon",prOpen=null;
-let coachChat=loadCoachChat(),coachLoading=false;
+let coachChat=loadCoachChat(),coachLoading=false,coachImg=null;
 function re(){document.getElementById("app").innerHTML="";render();if(typeof wtIsRunning==="function"&&wtIsRunning())wtTick();}
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -965,6 +1059,21 @@ function render(){
   if(activeTab==="log"){
     const weekDates=getWeekDates(S.week);
     const dayWorkout=getDayWorkout(activeDay);
+    if(recapData&&!recapDismissed){
+      const r=recapData;
+      html+=`<div class="card" style="padding:14px;margin:0 0 14px;border:1px solid #F0EDE533">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="sl" style="margin-bottom:0">👋 Welcome back</div>
+        <button onclick="recapDismissed=true;re()" style="background:none;border:none;color:#555;font-size:14px;padding:4px 8px">✕</button>
+      </div>
+      <div style="font-size:12px;color:#ccc;margin-bottom:8px;line-height:1.7">
+        <span style="color:#888">${esc(r.yLabel)}:</span>
+        ${r.y.restDay?`rest day 🛋️`:`${r.y.logged?`✅ workout logged`:`<span style="color:#f87171">no workout logged</span>`} · ${r.y.mealsDone}/${r.y.mealsTotal} meals · ${r.y.water} cups water`}
+      </div>
+      ${r.streak>1?`<div style="font-size:12px;font-weight:800;color:#F0EDE5;margin-bottom:8px">🔥 ${r.streak}-day training streak — keep it rolling</div>`:""}
+      <div style="font-size:12px;color:#ccc;line-height:1.6"><span style="color:#888">Today (${esc(r.tLabel)}):</span> ${r.todayW?`<b style="color:#fff">${esc(r.todayW)}</b> · ${r.todayN} exercises`:`rest day — recover well 🛋️`}</div>
+    </div>`;
+    }
     html+=`<div class="dtabs">`;
     ALLDAYS.forEach(d=>{
       const w=getDayWorkout(d);
@@ -1385,6 +1494,48 @@ function render(){
           </div>`:`<div class="empty" style="padding:8px 0">Log weight each week to track trend</div>`}
       </div>
 
+      <!-- Tape Measurements -->
+      ${(()=>{
+        const mE=measEntries();
+        const cur=(S.measurements||{})[measYM]||{};
+        const trendRows=MEAS_FIELDS.map(([k,label])=>{
+          const pts=mE.filter(([_,m])=>m[k]).map(([ym,m])=>({label:ymLabel(ym).split(" ")[0],v:m[k]}));
+          if(pts.length<2)return "";
+          const d=pts[pts.length-1].v-pts[0].v;
+          const good=MEAS_DOWN_GOOD.includes(k)?d<0:d>0;
+          const color=Math.abs(d)<0.25?"#888":good?"#4ade80":"#f87171";
+          return `<div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+              <div style="font-size:11px;font-weight:700;color:#fff">${label}</div>
+              <div style="font-size:11px;font-weight:800;color:${color}">${pts[0].v} &rarr; ${pts[pts.length-1].v} in (${d>0?"+":""}${d.toFixed(1)})</div>
+            </div>
+            ${measChart(pts)}
+          </div>`;
+        }).join("");
+        return `<div class="card" style="padding:14px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="sl" style="margin-bottom:0">📏 Tape Measurements</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button onclick="setMeasYM(-1)" style="background:#1a1a1a;border:1px solid #252525;border-radius:8px;color:#fff;padding:5px 11px;font-size:15px;font-weight:800">‹</button>
+            <div style="font-size:12px;font-weight:800;color:#F0EDE5;min-width:70px;text-align:center">${ymLabel(measYM)}</div>
+            <button onclick="setMeasYM(1)" style="background:#1a1a1a;border:1px solid #252525;border-radius:8px;color:#fff;padding:5px 11px;font-size:15px;font-weight:800">›</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          ${MEAS_FIELDS.map(([k,label])=>`
+          <div style="background:#1a1a1a;border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px">
+            <div style="font-size:11px;color:#888">${label}</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" inputmode="decimal" step="0.1" placeholder="–" value="${cur[k]??""}" onchange="setMeas('${k}',this.value)"
+                style="width:62px;background:#111;border:1px solid #252525;border-radius:6px;padding:6px 8px;color:#fff;font-size:14px;font-weight:700;text-align:right;outline:none">
+              <span style="font-size:10px;color:#555">in</span>
+            </div>
+          </div>`).join("")}
+        </div>
+        <div style="font-size:10px;color:#555;margin-bottom:${trendRows?"12px":"0"}">Log monthly — same tape, same spot, same time of day.</div>
+        ${trendRows?`<div style="border-top:1px solid #1e1e1e;padding-top:12px"><div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Trends</div>${trendRows}</div>`:""}
+      </div>`;})()}
+
       <!-- Step Counter -->
       <div class="card" style="padding:14px;margin-bottom:14px">
         <div class="sl">🚶 Daily Steps — Goal: ${STEP_GOAL.toLocaleString()}</div>
@@ -1531,7 +1682,7 @@ function render(){
           <div style="text-align:center;padding:24px 12px">
             <div style="font-size:32px;margin-bottom:10px">💪</div>
             <div style="font-size:13px;font-weight:700;color:#ccc;margin-bottom:6px">Ask me anything, ${P().name.split(" ")[0]}</div>
-            <div style="font-size:11px;color:#666;line-height:1.6;margin-bottom:16px">I know your program, what you've eaten today, your macros, and your training data. Real-time coaching, whenever you need it.</div>
+            <div style="font-size:11px;color:#666;line-height:1.6;margin-bottom:16px">I know your program, what you've eaten today, your macros, and your training data. You can also send photos — meals, form checks, the scale. Real-time coaching, whenever you need it.</div>
             <div style="display:flex;flex-direction:column;gap:6px">
               ${[
                 "I'm eating out tonight — what should I order?",
@@ -1544,13 +1695,21 @@ function render(){
           </div>
         `:coachChat.map(m=>`
           <div style="display:flex;justify-content:${m.role==="user"?"flex-end":"flex-start"};margin-bottom:10px">
-            <div style="max-width:85%;padding:10px 14px;border-radius:${m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px"};background:${m.role==="user"?"#F0EDE5":"#1a1a1a"};color:${m.role==="user"?"#000":"#ccc"};font-size:12px;line-height:1.6;white-space:pre-wrap;font-weight:${m.role==="user"?"600":"400"}">${esc(m.content)}</div>
+            <div style="max-width:85%;padding:10px 14px;border-radius:${m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px"};background:${m.role==="user"?"#F0EDE5":"#1a1a1a"};color:${m.role==="user"?"#000":"#ccc"};font-size:12px;line-height:1.6;white-space:pre-wrap;font-weight:${m.role==="user"?"600":"400"}">${m.img?`<img src="${m.img}" style="max-width:100%;border-radius:8px;margin-bottom:6px;display:block">`:""}${esc(m.content)}</div>
           </div>
         `).join("")}
         ${coachLoading?`<div style="display:flex;justify-content:flex-start;margin-bottom:10px"><div style="padding:10px 16px;border-radius:14px 14px 14px 4px;background:#1a1a1a;color:#666;font-size:12px">Coach is thinking...</div></div>`:""}
       </div>
 
-      <div style="padding:10px 16px;border-top:1px solid #1e1e1e;background:#111;display:flex;gap:8px">
+      ${coachImg?`
+      <div style="padding:8px 16px 0;background:#111;display:flex;align-items:center;gap:8px">
+        <img src="${coachImg.dataUrl}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #252525">
+        <span style="font-size:10px;color:#888;flex:1">Photo attached — ask about the meal, your form, anything</span>
+        <button onclick="coachImg=null;re()" style="background:none;border:none;color:#666;font-size:14px;padding:6px">✕</button>
+      </div>`:""}
+      <div style="padding:10px 16px;border-top:1px solid #1e1e1e;background:#111;display:flex;gap:8px;align-items:center">
+        <input type="file" id="coachImgInput" accept="image/*" style="display:none" onchange="onCoachImagePick(event)">
+        <button onclick="document.getElementById('coachImgInput').click()" style="width:44px;height:44px;border-radius:50%;border:1px solid #252525;background:#1a1a1a;color:#F0EDE5;font-size:17px;flex-shrink:0">📷</button>
         <input type="text" id="coachInput" placeholder="Message your coach..." onkeydown="if(event.key==='Enter')sendCoachMsg()"
           style="flex:1;background:#1a1a1a;border:1px solid #252525;border-radius:22px;padding:11px 16px;color:#fff;font-size:13px;outline:none">
         <button onclick="sendCoachMsg()" ${coachLoading?"disabled":""} style="width:44px;height:44px;border-radius:50%;border:none;background:#F0EDE5;color:#000;font-size:16px;font-weight:800;flex-shrink:0;opacity:${coachLoading?"0.5":"1"}">↑</button>
@@ -1744,7 +1903,7 @@ function render(){
 // resurrect "deleted" data from an old key on next launch. Plan/profile kept.
 function resetAllData(){
   [KEY,...OLD_KEYS].forEach(k=>{try{localStorage.removeItem(k);}catch{}});
-  S.logs={};S.meals={};S.bodyweight={};S.checkins={};S.water={};S.missed={};S.supps={};S.steps={};S.exnotes={};S.wtimes={};S.exskip={};S.macros={};S.coachChat={};S.mealNutrients=null;
+  S.logs={};S.meals={};S.bodyweight={};S.measurements={};S.checkins={};S.water={};S.missed={};S.supps={};S.steps={};S.exnotes={};S.wtimes={};S.exskip={};S.macros={};S.coachChat={};S.mealNutrients=null;
   coachChat=[];
   saveS(S);re();
 }
@@ -1821,7 +1980,8 @@ function todayKey(){ return new Date().toISOString().slice(0,10); }
 function loadCoachChat(){ return (S.coachChat && S.coachChat[todayKey()]) || []; }
 function saveCoachChat(){
   if(!S.coachChat)S.coachChat={};
-  S.coachChat[todayKey()]=coachChat;
+  // Strip photo data URLs before persisting — they bloat localStorage. Keep a marker.
+  S.coachChat[todayKey()]=coachChat.map(m=>m.img?{role:m.role,content:(m.content||"")+" [photo]"}:{role:m.role,content:m.content});
   // Prune history older than 7 days — otherwise this grows without bound
   const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);
   const cutoffKey=cutoff.toISOString().slice(0,10);
@@ -1867,6 +2027,23 @@ function buildCoachContext(){
   const plateaus=gains.filter(g=>g.pct<=0).slice(0,3);
   // Bodyweight trend
   const bwTrend=bwE.length>=2?`${bwE[0][1]}lbs → ${latestBW}lbs (${(latestBW-bwE[0][1])>0?"+":""}${(latestBW-bwE[0][1]).toFixed(1)}lbs since Week ${+bwE[0][0].slice(1)})`:null;
+  // Tape measurements (monthly) — latest + notable changes since first entry
+  const measE=measEntries();
+  const latestMeas=measE.length?measE[measE.length-1][1]:null;
+  let measLine="";
+  if(latestMeas){
+    const parts=MEAS_FIELDS.filter(([k])=>latestMeas[k]).map(([k,label])=>`${label} ${latestMeas[k]}in`);
+    if(parts.length){
+      measLine=`- Tape measurements (${ymLabel(measE[measE.length-1][0])}): ${parts.join(", ")}`;
+      if(measE.length>=2){
+        const firstM=measE[0][1],chg=[];
+        for(const[k,label]of MEAS_FIELDS){
+          if(firstM[k]&&latestMeas[k]){const d=latestMeas[k]-firstM[k];if(Math.abs(d)>=0.25)chg.push(`${label} ${d>0?"+":""}${d.toFixed(1)}in`);}
+        }
+        if(chg.length)measLine+=` — change since ${ymLabel(measE[0][0])}: ${chg.join(", ")}`;
+      }
+    }
+  }
   // Missed workout pattern (recent)
   const missedEntries=[];
   Object.entries(S.missed||{}).forEach(([mw,days])=>Object.entries(days).forEach(([d,v])=>{if(v)missedEntries.push({week:+mw.slice(1),day:d});}));
@@ -1892,18 +2069,44 @@ ${ci.energy?`- Today's check-in: energy ${ci.energy}/5, soreness ${ci.soreness||
 ${prsThisWeek.length?`- PRs set THIS WEEK: ${prsThisWeek.map(pr=>`${pr.name} ${pr.weight}lbs`).join(", ")}`:""}
 ${plateaus.length?`- Possible plateaus (no gain over logged history): ${plateaus.map(g=>g.name).join(", ")}`:""}
 ${bwTrend?`- Bodyweight trend: ${bwTrend}`:""}
+${measLine}
 ${recentMissed.length?`- Missed ${recentMissed.length} workout${recentMissed.length===1?"":"s"} in the last 2 weeks (${recentMissed.map(m=>`Wk${m.week} ${m.day}`).join(", ")})`:""}
 ${avgStepsThisWeek?`- Avg steps this week so far: ${avgStepsThisWeek.toLocaleString()}/day (goal ${STEP_GOAL.toLocaleString()})`:""}
 - His meal plan: ${MEALS.map((m,i)=>`Meal ${i+1}: ${m.items.join(", ")}`).join(" | ")}
 
-You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant — you now have his actual logged weights/reps for today, this week's PRs, plateaus, bodyweight trend, missed-workout pattern, and step average, so use them instead of speaking in generalities. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime. If he asks about sodium or potassium and no data is shown above, tell him to calculate the nutrient breakdown in the Meals tab first.`;
+You are ${P().name}'s personal coach in the Progress Not Perfection app. Be direct, practical, motivating but not cheesy. Give specific numbers when relevant — you now have his actual logged weights/reps for today, this week's PRs, plateaus, bodyweight trend, tape-measurement changes, missed-workout pattern, and step average, so use them instead of speaking in generalities. Keep answers SHORT — 2-5 sentences unless he asks for detail. If he mentions a time-sensitive situation, use the device time above. Never suggest staying up past their bedtime. If he asks about sodium or potassium and no data is shown above, tell him to calculate the nutrient breakdown in the Meals tab first.`;
 }
 
+// Downscale picked photos to max 1024px JPEG so payloads stay light
+function onCoachImagePick(e){
+  const f=e.target.files&&e.target.files[0];
+  e.target.value="";
+  if(!f)return;
+  const url=URL.createObjectURL(f);
+  const img=new Image();
+  img.onload=()=>{
+    const max=1024,scale=Math.min(1,max/Math.max(img.width,img.height));
+    const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+    const c=document.createElement("canvas");c.width=w;c.height=h;
+    c.getContext("2d").drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(url);
+    coachImg={dataUrl:c.toDataURL("image/jpeg",0.8)};
+    re();
+    const inp=document.getElementById("coachInput");if(inp)inp.focus();
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);alert("Couldn't read that photo — try another one.");};
+  img.src=url;
+}
 async function sendCoachMsg(){
   const input=document.getElementById("coachInput");
   const msg=input?input.value.trim():"";
-  if(!msg||coachLoading)return;
-  coachChat.push({role:"user",content:msg});
+  if((!msg&&!coachImg)||coachLoading)return;
+  // Older photo attachments become text notes — only the newest photo rides along to the API
+  coachChat.forEach(m=>{if(m.img){m.content=((m.content||"").replace(/ ?📷( Photo)?$/,"")+" 📷 [photo]").trim();delete m.img;}});
+  const newMsg={role:"user",content:msg};
+  if(coachImg){newMsg.img=coachImg.dataUrl;newMsg.content=msg?msg+" 📷":"📷 Photo";}
+  coachChat.push(newMsg);
+  coachImg=null;
   saveCoachChat();
   coachLoading=true;
   if(input)input.value="";
@@ -1913,7 +2116,15 @@ async function sendCoachMsg(){
     const messages=[
       {role:"user",content:buildCoachContext()+"\n\nConversation starts now."},
       {role:"assistant",content:"Got it. I'm ready to coach — what's up?"},
-      ...coachChat
+      ...coachChat.map(m=>{
+        if(!m.img)return{role:m.role,content:m.content};
+        const blocks=[];
+        const txt=(m.content||"").replace(/ ?📷( Photo)?$/,"").trim();
+        if(txt)blocks.push({type:"text",text:txt});
+        blocks.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:m.img.split(",")[1]}});
+        if(!txt)blocks.push({type:"text",text:"What's your coaching take on this photo?"});
+        return{role:m.role,content:blocks};
+      })
     ];
     const r=await fetch(AI_URL,{
       method:"POST",headers:{"Content-Type":"application/json"},
